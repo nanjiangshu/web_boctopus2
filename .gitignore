@@ -1,0 +1,29 @@
+# Compiled source
+*.pyc
+
+# SQLite 
+*.sqlite3
+*.sqlite
+
+# vim temp files
+.*.swp
+
+*.bak
+
+# backup folder
+bak/
+result/
+tmp/
+log/
+md5/
+env/
+bak.env/
+
+
+proj/pred/config/computenode.txt
+proj/pred/config/config.json
+proj/pred/static/images/cell_animal1.png
+proj/pred/static/images/cell_animal2.png
+proj/pred/static/images/logo25.png
+proj/pred/static/images/logo_new_subcons.png
+proj/settings.py
