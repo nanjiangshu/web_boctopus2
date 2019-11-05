@@ -85,10 +85,52 @@ from django.http import HttpResponseRedirect
 from django.views.static import serve
 
 
-#from pred.models import Query
-from pred.models import SubmissionForm
-from pred.models import FieldContainer
+from proj.pred.models import Query
+from proj.pred.models import SubmissionForm
+from proj.pred.models import FieldContainer
 from django.template import Context, loader
+
+def set_basic_config(request, info):# {{{
+    """Set basic configurations for the template dict"""
+    username = request.user.username
+    client_ip = request.META['REMOTE_ADDR']
+    if username in settings.SUPER_USER_LIST:
+        isSuperUser = True
+        divided_logfile_query =  "%s/%s/%s"%(SITE_ROOT,
+                "static/log", "submitted_seq.log")
+        divided_logfile_finished_jobid =  "%s/%s/%s"%(SITE_ROOT,
+                "static/log", "failed_job.log")
+    else:
+        isSuperUser = False
+        divided_logfile_query =  "%s/%s/%s"%(SITE_ROOT,
+                "static/log/divided", "%s_submitted_seq.log"%(client_ip))
+        divided_logfile_finished_jobid =  "%s/%s/%s"%(SITE_ROOT,
+                "static/log/divided", "%s_failed_job.log"%(client_ip))
+
+    if isSuperUser:
+        info['MAX_DAYS_TO_SHOW'] = g_params['BIG_NUMBER']
+    else:
+        info['MAX_DAYS_TO_SHOW'] = g_params['MAX_DAYS_TO_SHOW']
+
+
+    info['username'] = username
+    info['isSuperUser'] = isSuperUser
+    info['divided_logfile_query'] = divided_logfile_query
+    info['divided_logfile_finished_jobid'] = divided_logfile_finished_jobid
+    info['client_ip'] = client_ip
+    info['BASEURL'] = g_params['BASEURL']
+    info['STATIC_URL'] = settings.STATIC_URL
+# }}}
+def SetColorStatus(status):#{{{
+    if status == "Finished":
+        return "green"
+    elif status == "Failed":
+        return "red"
+    elif status == "Running":
+        return "blue"
+    else:
+        return "black"
+#}}}
 
 def index(request):#{{{
     path_tmp = "%s/static/tmp"%(SITE_ROOT)
@@ -104,16 +146,6 @@ def index(request):#{{{
         base_www_url = "http://" + request.META['HTTP_HOST']
         myfunc.WriteFile(base_www_url, base_www_url_file, "w", True)
     return submit_seq(request)
-#}}}
-def SetColorStatus(status):#{{{
-    if status == "Finished":
-        return "green"
-    elif status == "Failed":
-        return "red"
-    elif status == "Running":
-        return "blue"
-    else:
-        return "black"
 #}}}
 def ReadFinishedJobLog(infile, status=""):#{{{
     dt = {}
@@ -1467,6 +1499,40 @@ def get_help(request):#{{{
             divided_logfile_query, divided_logfile_finished_jobid)
 
     return render(request, 'pred/help.html', info)
+#}}}
+def get_countjob_country(request):#{{{
+    info = {}
+    set_basic_config(request, info)
+
+    countjob_by_country = "%s/countjob_by_country.txt"%(path_stat)
+    lines = myfunc.ReadFile(countjob_by_country).split("\n")
+    li_countjob_country = []
+    for line in lines: 
+        if not line or line[0]=="#":
+            continue
+        strs = line.split("\t")
+        if len(strs) >= 4:
+            country = strs[0]
+            try:
+                numseq = int(strs[1])
+            except:
+                numseq = 0
+            try:
+                numjob = int(strs[2])
+            except:
+                numjob = 0
+            try:
+                numip = int(strs[3])
+            except:
+                numip = 0
+            li_countjob_country.append([country, numseq, numjob, numip])
+    li_countjob_country_header = ["Country", "Numseq", "Numjob", "NumIP"]
+
+    info['li_countjob_country'] = li_countjob_country
+    info['li_countjob_country_header'] = li_countjob_country_header
+
+    info['jobcounter'] = webcom.GetJobCounter(info)
+    return render(request, 'pred/countjob_country.html', info)
 #}}}
 def get_news(request):#{{{
     info = {}
