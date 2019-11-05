@@ -371,13 +371,12 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                             else:
                                 runtime = runtime1
 
-                            info_finish = webcom.GetInfoFinish_Subcons(outpath_this_seq,
+                            info_finish = webcom.GetInfoFinish_Boctopus2(outpath_this_seq,
                                     origIndex, len(seq), description,
                                     source_result="newrun", runtime=runtime)
                             finished_info_list.append("\t".join(info_finish))
                 except:
-                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                    myfunc.WriteFile("[%s] Failed to os.listdir(%s)\n"%(date_str, outpath_result), gen_errfile, "a", True)
+                    webcom.loginfo("Failed to os.listdir(%s)"%(outpath_result), gen_errfile)
                     raise
                 if len(finished_info_list)>0:
                     myfunc.WriteFile("\n".join(finished_info_list)+"\n", finished_seq_file, "a", True)
@@ -618,9 +617,9 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                 if len(seq) > 0:
                     query_para = {}
                     if wsdl_url.find("commonbackend") != -1:
-                        query_para['name_software'] = "docker_subcons"
+                        query_para['name_software'] = "docker_boctopus2"
                     else:
-                        query_para['name_software'] = "subcons"
+                        query_para['name_software'] = "docker_boctopus2"
 
                     para_str = json.dumps(query_para, sort_keys=True)
                     jobname = ""
@@ -658,8 +657,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                                 submitted_loginfo_list.append(txt)
                                 cnttry = 0  #reset cnttry to zero
                         else:
-                            date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                            myfunc.WriteFile("[Date: %s] bad wsdl return value\n"%(date_str), gen_errfile, "a", True)
+                            webcom.loginfo("bad wsdl return value", gen_errfile)
                 if isSubmitSuccess:
                     cnt += 1
                     myfunc.WriteFile(" succeeded\n", gen_logfile, "a", True)
@@ -957,7 +955,7 @@ def GetResult(jobid):#{{{
             else:
                 runtime = runtime1
 
-            info_finish = webcom.GetInfoFinish_Subcons(outpath_this_seq,
+            info_finish = webcom.GetInfoFinish_Boctopus2(outpath_this_seq,
                     origIndex, len(seq), description,
                     source_result="newrun", runtime=runtime)
             finished_info_list.append("\t".join(info_finish))
@@ -1065,7 +1063,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         if os.path.exists(base_www_url_file):
             base_www_url = myfunc.ReadFile(base_www_url_file).strip()
         if base_www_url == "":
-            base_www_url = "http://subcons.bioinfo.se"
+            base_www_url = "http://boctopus.bioinfo.se"
 
         date_str = time.strftime(g_params['FORMAT_DATETIME'])
         date_str_epoch = time.time()
@@ -1083,7 +1081,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         start_date_epoch = webcom.datetime_str_to_epoch(start_date_str)
         all_runtime_in_sec = float(date_str_epoch) - float(start_date_epoch)
 
-        webcom.WriteSubconsTextResultFile(resultfile_text, outpath_result, maplist,
+        webcom.WriteBoctopusTextResultFile(resultfile_text, outpath_result, maplist,
                 all_runtime_in_sec, base_www_url, statfile=statfile)
 
         # note that zip rq will zip the real data for symbolic links
@@ -1102,10 +1100,10 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         # send the result to email
         if webcom.IsFrontEndNode(base_www_url) and myfunc.IsValidEmailAddress(email):
             webcom.SendEmail_on_finish(jobid, base_www_url,
-                    finish_status, name_server="SubCons", from_email="SubCons@subcons.bioinfo.se",
+                    finish_status, name_server="Boctopus2", from_email="boctopus2@boctopus.bioinfo.se",
                     to_email=email, contact_email=contact_email,
                     logfile=runjob_logfile, errfile=runjob_errfile)
-        webcom.CleanJobFolder_Subcons(rstdir)
+        webcom.CleanJobFolder_Boctopus2(rstdir)
 
 #}}}
 def RunStatistics(path_result, path_log):#{{{

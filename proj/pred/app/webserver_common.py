@@ -248,6 +248,51 @@ def WriteTOPCONSTextResultFile(outfile, outpath_result, maplist,#{{{
     except IOError:
         print "Failed to write to file %s"%(outfile)
 #}}}
+
+def WriteBoctopusTextResultFile(outfile, outpath_result, maplist, runtime_in_sec, statfile=""):#{{{
+    rstdir = os.path.realpath("%s/.."%(outpath_result))
+    runjob_logfile = "%s/%s"%(rstdir, "runjob.log")
+    runjob_errfile = "%s/%s"%(rstdir, "runjob.err")
+    finishtagfile = "%s/%s"%(rstdir, "write_result_finish.tag")
+    try:
+        fpout = open(outfile, "w")
+        fpstat = None
+        numTMPro = 0
+
+        if statfile != "":
+            fpstat = open(statfile, "w")
+
+        cnt = 0
+        for line in maplist:
+            strs = line.split('\t')
+            subfoldername = strs[0]
+            length = int(strs[1])
+            desp = strs[2]
+            seq = strs[3]
+            isTMPro = False
+            outpath_this_seq = "%s/%s"%(outpath_result, subfoldername)
+            predfile = "%s/query_topologies.txt"%(outpath_this_seq)
+            loginfo("predfile =  %s.\n"%(predfile), runjob_logfile)
+            if not os.path.exists(predfile):
+                loginfo("predfile %s does not exist\n"%(predfile), runjob_errfile)
+            (seqid, seqanno, top) = myfunc.ReadSingleFasta(predfile)
+            fpout.write(">%s\n%s\n"%(desp, top))
+            numTM = myfunc.CountTM(top)
+            if numTM >0:
+                isTMPro = True
+                numTMPro += 1
+
+            cnt += 1
+
+        if fpstat:
+            out_str_list = ["numTMPro\t%d\n"%(numTMPro)]
+            fpstat.write("%s"%("\n".join(out_str_list)))
+            fpstat.close()
+        WriteDateTimeTagFile(finishtagfile, runjob_logfile, runjob_errfile)
+    except IOError:
+        loginfo( "Failed to write to file %s"%(outfile), runjob_errfile)
+#}}}
+
 def WriteHTMLHeader(title, fpout):#{{{
     exturl = "http://topcons.net/static"
     print >> fpout, "<HTML>"
@@ -729,6 +774,10 @@ def GetInfoFinish_TOPCONS2(outpath_this_seq, origIndex, seqLength, seqAnno, sour
             seqAnno.replace('\t', ' '), date_str]
     return info_finish
 # }}}
+def GetInfoFinish_Boctopus2(outpath_this_seq, origIndex, seqLength, seqAnno, source_result="", runtime=0.0):# {{{
+    """Get the list info_finish for the method Boctopus2"""
+    return GetInfoFinish_TOPCONS2(outpath_this_seq, origIndex, seqLength, seqAnno, source_result, runtime)
+# }}}
 def WriteDateTimeTagFile(outfile, logfile, errfile):# {{{
     if not os.path.exists(outfile):
         date_str = time.strftime(FORMAT_DATETIME)
@@ -927,6 +976,32 @@ def GetRefreshInterval(queuetime_in_sec, runtime_in_sec, method_submission):# {{
 
 # }}}
 
+def CleanJobFolder_TOPCONS2(rstdir):# {{{
+    """Clean the jobfolder for TOPCONS2 after finishing"""
+    flist =[
+            "%s/remotequeue_seqindex.txt"%(rstdir),
+            "%s/torun_seqindex.txt"%(rstdir)
+            ]
+    for f in flist:
+        if os.path.exists(f):
+            try:
+                os.remove(f)
+            except:
+                pass
+# }}}
+def CleanJobFolder_Boctopus2(rstdir):# {{{
+    """Clean the jobfolder for TOPCONS2 after finishing"""
+    flist =[
+            "%s/remotequeue_seqindex.txt"%(rstdir),
+            "%s/torun_seqindex.txt"%(rstdir)
+            ]
+    for f in flist:
+        if os.path.exists(f):
+            try:
+                os.remove(f)
+            except:
+                pass
+# }}}
 def CleanJobFolder_TOPCONS2(rstdir):# {{{
     """Clean the jobfolder for TOPCONS2 after finishing"""
     flist =[
