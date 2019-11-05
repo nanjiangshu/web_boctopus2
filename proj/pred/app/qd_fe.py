@@ -474,6 +474,11 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
     forceruntagfile = "%s/forcerun"%(rstdir)
     lastprocessed_cache_idx_file = "%s/lastprocessed_cache_idx.txt"%(rstdir)
 
+    if os.path.exists(forceruntagfile):
+        isForceRun = True
+    else:
+        isForceRun = False
+
     finished_idx_list = []
     failed_idx_list = []    # [origIndex]
     if os.path.exists(finished_idx_file):
@@ -492,7 +497,6 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
     if len(jobinfolist) >= 8:
         email = jobinfolist[6]
         method_submission = jobinfolist[7]
-
 
     # the first time when the this jobid is processed, do the following
     # 1. generate a file with sorted seqindex
@@ -1648,6 +1652,7 @@ def InitGlobalParameter():#{{{
     g_params['MAX_SUBMIT_TRY'] = 3
     g_params['MAX_TIME_IN_REMOTE_QUEUE'] = 3600*24 # one day in seconds
     g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
+    g_params['MAX_CACHE_PROCESS'] = 200 # process at the maximum this cached sequences in one loop
     return g_params
 #}}}
 if __name__ == '__main__' :
