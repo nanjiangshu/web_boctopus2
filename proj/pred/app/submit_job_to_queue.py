@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Description: submit job to queue
 # ChangeLog 2015-03-26 
 #   1. suq ntask is set universally for each node by the qd_topcons2_fe.py
@@ -14,13 +15,14 @@ import myfunc
 import subprocess
 import time
 import math
+import webserver_common as webcom
 progname =  os.path.basename(__file__)
 wspace = ''.join([" "]*len(progname))
 
-vip_user_list = [
-        "kostas.tsirigos@scilifelab.se",
-        "nanjiang.shu@scilifelab.se"
-        ]
+rundir = os.path.dirname(os.path.realpath(__file__))
+webserver_root = os.path.realpath("%s/../../../"%(rundir))
+basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
+vip_email_file = "%s/config/vip_email.txt"%(basedir) 
 
 rundir = os.path.dirname(os.path.realpath(__file__))
 basedir = os.path.realpath("%s/../"%(rundir))
@@ -64,29 +66,6 @@ def PrintHelp(fpout=sys.stdout):#{{{
     print >> fpout, usage_short
     print >> fpout, usage_ext
     print >> fpout, usage_exp#}}}
-def GetNumSameUserInQueue(suq_ls_content, basename_scriptfile, email, host_ip):#{{{
-    myfunc.WriteFile("Entering GetNumSameUserInQueue()\n", g_params['debugfile'], "a")
-    num_same_user_in_queue = 0
-    if email == "" and host_ip == "":
-        num_same_user_in_queue = 0
-    else:
-        lines = suq_ls_content.split("\n")
-        if email != "" and host_ip != "":
-            for line in lines:
-                if line.find(email) != -1 or line.find(host_ip) != -1:
-                    num_same_user_in_queue += 1
-        elif email != "":
-            for line in lines:
-                if line.find(email) != -1:
-                    num_same_user_in_queue += 1
-        elif host_ip != "":
-            for line in lines:
-                if line.find(host_ip) != -1:
-                    num_same_user_in_queue += 1
-
-    return num_same_user_in_queue
-#}}}
-
 
 def SubmitJobToQueue(jobid, datapath, outpath, numseq, numseq_this_user, email, #{{{
         host_ip, base_www_url):
@@ -124,7 +103,7 @@ def SubmitJobToQueue(jobid, datapath, outpath, numseq, numseq_this_user, email, 
     priority = myfunc.GetSuqPriority(numseq_this_user)
     priority = 10     # quick fix debug  2017-09-18
 
-    if email in vip_user_list:
+    if email in g_params['vip_user_list']:
         priority = 999999999.0
 
     myfunc.WriteFile("priority=%d\n"%(priority), g_params['debugfile'], "a")
@@ -183,7 +162,7 @@ def main(g_params):#{{{
     isNonOptionArg=False
     while i < numArgv:
         if isNonOptionArg == True:
-            print >> g_params['fperr'], "Error! Wrong argument:", argv[i]
+            webcom.loginfo("Error! Wrong argument: %s"(argv[i]), gen_errfile)
             return 1
             isNonOptionArg = False
             i += 1
@@ -217,14 +196,14 @@ def main(g_params):#{{{
                 g_params['isQuiet'] = True
                 i += 1
             else:
-                print >> g_params['fperr'], "Error! Wrong argument:", argv[i]
+                webcom.loginfo("Error! Wrong argument: %s"(argv[i]), gen_errfile)
                 return 1
         else:
-            print >> g_params['fperr'], "Error! Wrong argument:", argv[i]
+            webcom.loginfo("Error! Wrong argument: %s"(argv[i]), gen_errfile)
             return 1
 
     if outpath == "":
-        print >> g_params['fperr'], "outpath not set. exit"
+        webcom.loginfo("outpath not set. exit", gen_errfile)
         return 1
     elif not os.path.exists(outpath):
         cmd =  ["mkdir", "-p", outpath]
@@ -236,18 +215,20 @@ def main(g_params):#{{{
             return 1
 
     if jobid == "":
-        print >> g_params['fperr'], "%s: jobid not set. exit"%(sys.argv[0])
+        webcom.loginfo("%s: jobid not set. exit"%(sys.argv[0]), gen_errfile)
         return 1
 
     if datapath == "":
-        print >> g_params['fperr'], "%s: datapath not set. exit"%(sys.argv[0])
+        webcom.loginfo("%s: datapath not set. exit"%(sys.argv[0]), gen_errfile)
         return 1
     elif not os.path.exists(datapath):
-        print >> g_params['fperr'], "%s: datapath does not exist. exit"%(sys.argv[0])
+        webcom.loginfo("%s: datapath does not exist. exit"%(sys.argv[0]), gen_errfile)
         return 1
     elif not os.path.exists("%s/query.fa"%(datapath)):
-        print >> g_params['fperr'], "%s: file %s/query.fa does not exist. exit"%(sys.argv[0], datapath)
+        webcom.loginfo("%s: file %s/query.fa does not exist. exit"%(sys.argv[0], datapath), gen_errfile)
         return 1
+
+    g_params['vip_user_list'] = myfunc.ReadIDList(vip_email_file)
 
     g_params['debugfile'] = "%s/debug.log"%(outpath)
 
@@ -260,19 +241,10 @@ def InitGlobalParameter():#{{{
     g_params = {}
     g_params['isQuiet'] = True
     g_params['isForceRun'] = False
-    g_params['fperr'] = None
+    g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
     return g_params
 #}}}
 if __name__ == '__main__' :
     g_params = InitGlobalParameter()
-    try:
-        g_params['fperr'] = open(gen_errfile, "a")
-    except IOError:
-        g_params['fperr'] = sys.stderr
-        pass
-    g_params = InitGlobalParameter()
-    status = main(g_params)
-    if g_params['fperr'] and g_params['fperr'] != sys.stderr:
-        g_params['fperr'].close()
-    sys.exit(status)
+    sys.exit(main(g_params))
 
