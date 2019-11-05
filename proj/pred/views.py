@@ -1583,7 +1583,7 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
     resultdict['jobid'] = jobid
     resultdict['jobname'] = jobname
     resultdict['outpathname'] = os.path.basename(outpathname)
-    resultdict['BASEURL'] = BASEURL
+    resultdict['BASEURL'] = g_params['BASEURL']
     resultdict['status'] = status
     resultdict['numseq'] = numseq
     base_www_url = "http://" + request.META['HTTP_HOST']

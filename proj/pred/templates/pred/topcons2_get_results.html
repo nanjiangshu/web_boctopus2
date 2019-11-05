@@ -72,7 +72,7 @@ function readfile() {
             <pre>
 {{errinfo}}
             </pre>
-            {% if indexfiletype == "finishedfile" and numseq > 1%}
+            {% if indexfiletype == "finishedfile" and numseq > 0%}
                 <p>Part of the sequences of your job that have been predicted</p>
                 <p>
                     <b>Processed {{num_finished}} / {{numseq}} ({{percent_finished}} %) </b>
@@ -143,7 +143,7 @@ function readfile() {
                 <a href="{{STATIC_URL}}result/{{jobid}}/{{raw_query_seqfile}}">{{raw_query_seqfile}}</a>
             </p>
             <hr>
-            {% if numseq > 1 %}
+            {% if numseq > 0 %}
                 <table  align="left" cellspacing="1" cellpadding="1">
                     <tr>
                         <td>Total number of protein sequences:</td>
@@ -230,7 +230,7 @@ function readfile() {
                 Zipped folder of your result: not ready
             </p>
             <hr>
-            {% if status == "Running" and indexfiletype == "finishedfile" and numseq > 1%}
+            {% if status == "Running" and indexfiletype == "finishedfile" and numseq > 0%}
                 <p>
                     <b>Progress: {{num_finished}} / {{numseq}} ({{percent_finished}} %)
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
