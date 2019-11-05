@@ -38,9 +38,6 @@ TZ = "Europe/Stockholm"
 os.environ['TZ'] = TZ
 time.tzset()
 
-vip_user_list = [
-        "nanjiang.shu@scilifelab.se"
-        ]
 
 # make sure that only one instance of the script is running
 # this code is working 
@@ -410,7 +407,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             if ip in g_params['blackiplist']:
                 priority = priority/1000.0
 
-            if email in vip_user_list:
+            if email in g_params['vip_user_list']:
                 numseq_this_user = 1
                 priority = 999999999.0
                 myfunc.WriteFile("email %s in vip_user_list\n"%(email), gen_logfile, "a", True)
@@ -627,7 +624,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 
                     para_str = json.dumps(query_para, sort_keys=True)
                     jobname = ""
-                    if not email in vip_user_list:
+                    if not email in g_params['vip_user_list']:
                         useemail = ""
                     else:
                         useemail = email
@@ -1748,6 +1745,7 @@ def main(g_params):#{{{
 
         date_str = time.strftime(g_params['FORMAT_DATETIME'])
         avail_computenode_list = myfunc.ReadIDList2(computenodefile, col=0)
+        g_params['vip_user_list'] = myfunc.ReadIDList2(vip_email_file,  col=0)
         num_avail_node = len(avail_computenode_list)
         if loop == 0:
             myfunc.WriteFile("[Date: %s] start %s. loop %d\n"%(date_str, progname, loop), gen_logfile, "a", True)
