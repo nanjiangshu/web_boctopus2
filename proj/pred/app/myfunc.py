@@ -2076,7 +2076,17 @@ def ArchiveFile(filename, maxsize):#{{{
         return 0
 #}}}
 def GetSuqPriority(numseq_this_user):#{{{
-    prio = int(( (1/time.time()*1e10) * 1e8 ) ) - int(numseq_this_user**1.5)
+### the jobs queued for more than one day should have higher priority no matter how many sequences it is
+    year = datetime.datetime.today().year
+    lastyear = year-1
+    epoch_time_lastyear = datetime.datetime.strptime(str(lastyear), '%Y').strftime('%s')
+    seconds_since_lastyear = time.time() - float(epoch_time_lastyear) 
+    if numseq_this_user > 20000:
+        numseq_this_user = 20000
+    prio = int(( (1/seconds_since_lastyear*1e10) * 1e6 ) ) - int(numseq_this_user**1.35)
+    if prio < 0:
+        prio = 0
+
     return prio
 #}}}
 def Sendmail(from_email, to_email, subject, bodytext):#{{{
@@ -2124,6 +2134,53 @@ def ReadFinishedJobLog(infile, status=""):#{{{
                         dt[jobid] = [status_this_job, jobname, ip, email,
                                 numseq_str, method_submission, submit_date_str,
                                 start_date_str, finish_date_str]
+            lines = hdl.readlines()
+        hdl.close()
+
+    return dt
+#}}}
+def ReadRunJobLog(infile):#{{{
+    dt = {}
+    if not os.path.exists(infile):
+        return dt
+
+    hdl = ReadLineByBlock(infile)
+    if not hdl.failure:
+        lines = hdl.readlines()
+        while lines != None:
+            for line in lines:
+                if not line or line[0] == "#":
+                    continue
+                strs = line.split("\t")
+                if len(strs)>= 11:
+                    jobid = strs[0]
+                    status_this_job = strs[1]
+                    jobname = strs[2]
+                    ip = strs[3]
+                    email = strs[4]
+                    try:
+                        numseq = int(strs[5])
+                    except:
+                        numseq = 1
+                        pass
+                    method_submission = strs[6]
+                    submit_date_str = strs[7]
+                    start_date_str = strs[8]
+                    finish_date_str = strs[9]
+                    try:
+                        total_numseq_of_user = int(str[10])
+                    except:
+                        total_numseq_of_user = 1
+                        pass
+                    try:
+                        priority = float(str[11])
+                    except:
+                        priority = 0
+                        pass
+                    dt[jobid] = [status_this_job, jobname, ip, email,
+                            numseq, method_submission, submit_date_str,
+                            start_date_str, finish_date_str,
+                            total_numseq_of_user, priority]
             lines = hdl.readlines()
         hdl.close()
 
