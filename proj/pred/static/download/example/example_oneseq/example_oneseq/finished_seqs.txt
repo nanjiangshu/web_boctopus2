@@ -1,0 +1,1 @@
+seq_0	330	6	False	newrun	84.6785171032	LPTD

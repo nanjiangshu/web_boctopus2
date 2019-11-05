@@ -1,0 +1,186 @@
+tmpdir = /big/server/web_boctopus2/debug/proj/pred/static/tmp/tmp_HrPEv3
+/big/server/web_boctopus2/debug/proj/pred/app/soft/boctopus2_newset_hhblits/boctopus_main.py /big/server/web_boctopus2/debug/proj/pred/static/tmp/tmp_HrPEv3/rst_8x6lrY/query_0.fa /big/server/web_boctopus2/debug/proj/pred/static/tmp/tmp_HrPEv3/rst_8x6lrY
+workflow:
+Reformatted /scratch/boctopus2_aiFl_4/seq_0//temp.psi with 4229 sequences from psi to clu and written to file /scratch/boctopus2_aiFl_4/seq_0//temp.clu
+BLASTP 2.2.26 [Sep-21-2011]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+
+Reference for composition-based statistics:
+Schaffer, Alejandro A., L. Aravind, Thomas L. Madden,
+Sergei Shavirin, John L. Spouge, Yuri I. Wolf,  
+Eugene V. Koonin, and Stephen F. Altschul (2001), 
+"Improving the accuracy of PSI-BLAST protein database searches with 
+composition-based statistics and other refinements",  Nucleic Acids Res. 29:2994-3005.
+
+Query= query
+         (330 letters)
+
+Database: 1a0s.fas 
+           1 sequences; 253 total letters
+
+Searching.done
+
+
+
+                                                                 Score    E
+Sequences producing significant alignments:                      (bits) Value
+
+1_1a0s.fas                                                             20   0.10 
+
+>1_1a0s.fas 
+          Length = 253
+
+ Score = 19.6 bits (39), Expect = 0.10,   Method: Composition-based stats.
+ Identities = 7/38 (18%), Positives = 16/38 (42%), Gaps = 9/38 (23%)
+
+Query: 178 DTWSVVGSEIIHDREEQVAEIWNARFKVGPVPIFYSPY 215
+           + W+   S++   +         A  ++G +P F  P+
+Sbjct: 79  NDWTASTSDLNVRQ---------AFVELGNLPTFAGPF 107
+
+
+
+ Score = 17.3 bits (33), Expect = 0.42,   Method: Composition-based stats.
+ Identities = 4/20 (20%), Positives = 10/20 (50%)
+
+Query: 225 RSGFLIPNAKYTTTNYFEFY 244
+           RSG ++ ++  +T +     
+Sbjct: 10  RSGVIMNDSGASTKSGAYIT 29
+
+
+
+ Score = 16.1 bits (30), Expect = 1.1,   Method: Composition-based stats.
+ Identities = 2/33 (6%), Positives = 10/33 (30%)
+
+Query: 296 KVYEDEHPNDDSSRRWLFYWNHSGVMDQVWRFN 328
+            +   +  ++ ++ R+             W  +
+Sbjct: 52  NLEHKQTLDNGATTRFKVMVADGQTSYNDWTAS 84
+
+
+  Database: 1a0s.fas
+    Posted date:  Jul 3, 2014  6:58 PM
+  Number of letters in database: 253
+  Number of sequences in database:  1
+  
+Lambda     K      H
+   0.311    0.140    0.373 
+
+Lambda     K      H
+   0.267   0.0427    0.140 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 177
+Number of Sequences: 1
+Number of extensions: 11
+Number of successful extensions: 4
+Number of sequences better than 10.0: 1
+Number of HSP's better than 10.0 without gapping: 1
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 3
+length of query: 330
+length of database: 253
+effective HSP length: 26
+effective length of query: 304
+effective length of database: 227
+effective search space:    69008
+effective search space used:    69008
+T: 11
+A: 40
+X1: 16 ( 7.2 bits)
+X2: 38 (14.6 bits)
+X3: 64 (24.7 bits)
+S1: 22 (12.7 bits)
+S2: 22 (13.0 bits)
+
+Input parameters
+/scratch/boctopus2_aiFl_4/seq_0/query.fa
+/usr/bin/
+/big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/dummy_db/1a0s.fas
+/data/hhsuite/uniprot20_2013_03/uniprot20_2013_03
+/big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/app/blast-2.2.26/bin/blastpgp
+/big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/app/hhsuite-2.0.16-linux-x86_64/lib/hh/scripts/reformat.pl
+/big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/app/hhsuite-2.0.16-linux-x86_64
+
+Reading list to process
+Files to process ['query']
+
+Generating PSSM ...
+Calling boctopus_generatePSSM_HHblits
+
+/big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/app/hhsuite-2.0.16-linux-x86_64/bin/hhblits -i /scratch/boctopus2_aiFl_4/seq_0/output/query.seq -d /data/hhsuite/uniprot20_2013_03/uniprot20_2013_03 -opsi /scratch/boctopus2_aiFl_4/seq_0/query.psi -oa3m /scratch/boctopus2_aiFl_4/seq_0/query.a3m -all -n 4 -maxfilt 100000 -realignoldhits -realign_max 5000 -Z 5000 -B 5000 -cpu 4 -e 1E-3 > /scratch/boctopus2_aiFl_4/seq_0/tmp/query_hhblits.stdout
+/scratch/boctopus2_aiFl_4/seq_0/query.psi discared 4843 9072
+
+/big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/app/hhsuite-2.0.16-linux-x86_64/lib/hh/scripts/reformat.pl /scratch/boctopus2_aiFl_4/seq_0//temp.psi /scratch/boctopus2_aiFl_4/seq_0//temp.clu
+/big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/app/blast-2.2.26/bin/blastpgp -i /scratch/boctopus2_aiFl_4/seq_0/output//query.seq -B /scratch/boctopus2_aiFl_4/seq_0/temp.clu.filtered -j 1 -d /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/dummy_db/1a0s.fas -Q /scratch/boctopus2_aiFl_4/seq_0/pssm/query.pssm.filtered
+Writing PSSM query
+PSSM generated at /scratch/boctopus2_aiFl_4/seq_0/pssm/query_41.filtered
+/scratch/boctopus2_aiFl_4/seq_0/output/ 23 31 9 13 /scratch/boctopus2_aiFl_4/seq_0/pssm/query_41.filtered query /usr/bin/ MKKRIPTLLATMIATALYSQQGLAADLASQCMLGVPSYDRPLVQGDTNDLPVTINADHAKGDYPDDAVFTGSVDIMQGNSRLQADEVQLHQKEAPGQPEPVRTVDALGNVHYDDNQVILKGPKGWANLNTKDTNVWEGDYQMVGRQGRGKADLMKQRGENRYTILDNGSFTSCLPGSDTWSVVGSEIIHDREEQVAEIWNARFKVGPVPIFYSPYLQLPVGDKRRSGFLIPNAKYTTTNYFEFYLPYYWNIAPNMDATITPHYMHRRGNIMWENEFRYLSQAGAGLMELDYLPSDKVYEDEHPNDDSSRRWLFYWNHSGVMDQVWRFNVD
+Predicting using SVMs
+startPredicting in boctopus_predictsvm.py
+/scratch/boctopus2_aiFl_4/seq_0/pssm/query_41.filtered
+SVM-stage ['query']
+Running SVMs for query 330 330
+Remember how you are dividing the trainX parameter 10.0 windowSize 23
+/usr/bin/R --vanilla --slave < /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/traninedsvmRadial_cyto.R --args /scratch/boctopus2_aiFl_4/seq_0/tmp/query_cyto.dat > /scratch/boctopus2_aiFl_4/seq_0/svmoutput/query_23_cytoloop_svmradialResult.txt
+reading prf file Innerloop
+inside readfile query_23_cytoloop_svmradialResult.txt
+query
+query_23_cytoloop_svmradialResult.txt 330 330
+
+Remember how you are dividing the trainX parameter 10.0 windowSize 31
+/usr/bin/R --vanilla --slave < /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/traninedsvmRadial_extra.R --args /scratch/boctopus2_aiFl_4/seq_0/tmp/query_extra.dat > /scratch/boctopus2_aiFl_4/seq_0/svmoutput/query_31_extraloop_svmradialResult.txt
+reading prf file Outloop
+inside readfile query_31_extraloop_svmradialResult.txt
+query
+query_31_extraloop_svmradialResult.txt 330 330
+
+Remember how you are dividing the trainX parameter 10.0 windowSize 9
+/usr/bin/R --vanilla --slave < /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/traninedsvmRadial_lipid.R --args /scratch/boctopus2_aiFl_4/seq_0/tmp/query_lipid.dat > /scratch/boctopus2_aiFl_4/seq_0/svmoutput/query_9_lipidfacing_svmradialResult.txt
+reading prf file lipid-facing
+inside readfile query_9_lipidfacing_svmradialResult.txt
+query
+query_9_lipidfacing_svmradialResult.txt 330 330
+
+Remember how you are dividing the trainX parameter 10.0 windowSize 13
+/usr/bin/R --vanilla --slave < /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/traninedsvmRadial_pore.R --args /scratch/boctopus2_aiFl_4/seq_0/tmp/query_pore.dat > /scratch/boctopus2_aiFl_4/seq_0/svmoutput/query_13_porefacing_svmradialResult.txt
+reading prf file pore-facing
+inside readfile query_13_porefacing_svmradialResult.txt
+query
+query_13_porefacing_svmradialResult.txt 330 330
+
+---------------
+query.o.prf.txt 330
+query.i.prf.txt 330
+query.I.prf.txt 330
+query.O.prf.txt 330
+---------------
+
+Barrel region: start, end, protein_length -  199 330 330
+Predicting using HMM
+/big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/st911_Noss.hmg query /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/modhmm/ _ioIOS.prf.txt
+/big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/st911_Noss.hmg query /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/modhmm/ _ioIOS.prf.txt
+proteinName  query_ioIOS.prf.txt
+protein Name query
+predicted topology IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIpLpLpLpLpOOOOLpLpLpLpLIIIIIIpLpLpLpLpOOOOOLpLpLpLpLIIIIIpLpLpLpLpOOOOOOOOOOOOOOOOOOLpLpLpLpLIIIIIIIIIII
+330 330
+query_ioIOS.prf.txt
+query_ioIOS.prf.txt
+query_ioIOS.prf.txt
+In dict query_ioIOS.prf.txt
+pid query_ioIOS.prf.txt
+query_ioIOS.prf.txt ['i', 'o', 'I', 'O', 'S']
+Generating plots
+/scratch/boctopus2_aiFl_4/seq_0//output/query_ioIOS.prf.txt_svm_topo.png Finished
+boctopus2 will start with  /big/server/web_boctopus2/debug/proj/pred/static/tmp/tmp_HrPEv3/rst_8x6lrY/query_0.fa
+processing  0 0
+python /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/boctopus_startHMM.py /scratch/boctopus2_aiFl_4/seq_0/query.fa /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/app/blast-2.2.26/bin /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/modhmm/ /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/st911_Noss.hmg 23 31 9 13 /usr/bin/ /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/dummy_db/1a0s.fas /data/hhsuite/uniprot20_2013_03/uniprot20_2013_03 /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/app/blast-2.2.26/bin/blastpgp /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/app/hhsuite-2.0.16-linux-x86_64/lib/hh/scripts/reformat.pl /big/software/boctopus2_newdataset/code/boctopus2_newset_hhblits/app/hhsuite-2.0.16-linux-x86_64
+
+

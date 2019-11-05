@@ -1,0 +1,10 @@
+Entering SubmitJobToQueue()
+Write scriptfile /big/server/web_boctopus2/debug/proj/pred/static/tmp/tmp_HrPEv3/runjobSPLITrst_8x6lrYSPLIT127.0.0.1SPLITSPLIT1.sh
+Getting priority
+priority=691336213
+Entering SubmitSuqJob()
+cmdline: /usr/bin/suq -b /scratch run -d /big/server/web_boctopus2/debug/proj/pred/static/tmp/tmp_HrPEv3 -p 691336213 /big/server/web_boctopus2/debug/proj/pred/static/tmp/tmp_HrPEv3/runjobSPLITrst_8x6lrYSPLIT127.0.0.1SPLITSPLIT1.sh
+
+run cmd: cnttry = 0, MAX_TRY=5
+Leaving SubmitSuqJob() with success
+
