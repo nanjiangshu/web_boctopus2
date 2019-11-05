@@ -910,6 +910,22 @@ def GetJobCounter(info): #{{{
         hdl.close()
     return jobcounter
 #}}}
+def GetRefreshInterval(queuetime_in_sec, runtime_in_sec, method_submission):# {{{
+    """Get refresh_interval for the webpage"""
+    refresh_interval = 2.0
+    t =  queuetime_in_sec + runtime_in_sec
+    if t < 10:
+        if method_submission == "web":
+            refresh_interval = 2.0
+        else:
+            refresh_interval = 5.0
+    elif t >= 10 and t < 40:
+        refresh_interval = t / 2.0
+    else:
+        refresh_interval = 20.0
+    return refresh_interval
+
+# }}}
 
 def CleanJobFolder_TOPCONS2(rstdir):# {{{
     """Clean the jobfolder for TOPCONS2 after finishing"""
@@ -953,6 +969,11 @@ def DeleteOldResult(path_result, path_log, logfile, MAX_KEEP_DAYS=180):#{{{
                     myfunc.WriteFile("[%s] "%(date_str)+ msg + "\n", logfile, "a", True)
                     shutil.rmtree(rstdir)
 #}}}
+def loginfo(msg, outfile):# {{{
+    """Write loginfo to outfile, appending current time"""
+    date_str = time.strftime(FORMAT_DATETIME)
+    myfunc.WriteFile("[%s] %s\n"%(date_str, msg), outfile, "a", True)
+# }}}
 @timeit
 def CleanServerFile(logfile, errfile):#{{{
     """Clean old files on the server"""
