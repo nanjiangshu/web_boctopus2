@@ -976,6 +976,20 @@ def GetRefreshInterval(queuetime_in_sec, runtime_in_sec, method_submission):# {{
 
 # }}}
 
+def ArchiveLogFile(path_log, threshold_logfilesize=20*1024*1024):# {{{
+    """Archive some of the log files if they are too big"""
+    gen_logfile = "%s/qd_fe.log"%(path_log)
+    gen_errfile = "%s/qd_fe.err"%(path_log)
+    flist = [gen_logfile, gen_errfile,
+            "%s/restart_qd_fe.cgi.log"%(path_log),
+            "%s/debug.log"%(path_log),
+            "%s/clean_cached_result.py.log"%(path_log)
+            ]
+
+    for f in flist:
+        if os.path.exists(f):
+            myfunc.ArchiveFile(f, threshold_logfilesize)
+# }}}
 def CleanJobFolder_TOPCONS2(rstdir):# {{{
     """Clean the jobfolder for TOPCONS2 after finishing"""
     flist =[
