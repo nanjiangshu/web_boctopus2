@@ -1220,7 +1220,6 @@ def get_serverstatus(request):#{{{
     info['num_finished_jobs_wsdl_str'] = str(numjob_wsdl)
     info['num_unique_ip_str'] = str(info['num_unique_ip'])
     info['num_unique_country_str'] = str(info['num_unique_country'])
-    info['num_seq_in_local_queue'] = num_seq_in_local_queue
     info['num_seq_in_remote_queue'] = cntseq_in_remote_queue
     info['activeuserli_nseq_header'] = activeuserli_nseq_header
     info['activeuserli_njob_header'] = activeuserli_njob_header
