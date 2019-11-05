@@ -695,7 +695,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
 #}}}
 def GetResult(jobid):#{{{
     # retrieving result from the remote server for this job
-    myfunc.WriteFile("GetResult for %s.\n" %(jobid), gen_logfile, "a", True)
+    webcom.loginfo("GetResult for %s.\n" %(jobid), gen_logfile)
     rstdir = "%s/%s"%(path_result, jobid)
     runjob_logfile = "%s/%s"%(rstdir, "runjob.log")
     runjob_errfile = "%s/%s"%(rstdir, "runjob.err")
@@ -788,8 +788,7 @@ def GetResult(jobid):#{{{
             myclient = Client(wsdl_url, cache=None, timeout=30)
             myclientDict[node] = myclient
         except:
-            date_str = time.strftime(g_params['FORMAT_DATETIME'])
-            myfunc.WriteFile("[Date: %s] Failed to access %s\n"%(date_str, wsdl_url), gen_errfile, "a", True)
+            webcom.loginfo("Failed to access %s"%(wsdl_url), gen_errfile)
             pass
 
 
@@ -819,8 +818,7 @@ def GetResult(jobid):#{{{
         try:
             rtValue = myclient.service.checkjob(remote_jobid)
         except:
-            date_str = time.strftime(g_params['FORMAT_DATETIME'])
-            myfunc.WriteFile("[Date: %s] Failed to run myclient.service.checkjob(%s)\n"%(date_str, remote_jobid), gen_errfile, "a", True)
+            webcom.loginfo("Failed to run myclient.service.checkjob(%s)"%(remote_jobid), gen_errfile)
             rtValue = []
             pass
         isSuccess = False
@@ -852,7 +850,12 @@ def GetResult(jobid):#{{{
                     if os.path.exists(outfile_zip) and isRetrieveSuccess:
                         cmd = ["unzip", outfile_zip, "-d", tmpdir]
                         webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
-                        rst_this_seq = "%s/%s/seq_0"%(tmpdir, remote_jobid)
+                        # the result structure for boctopus2 is slightly
+                        # different compared to other prediction methods, it is
+                        # rstdir/seq_0/seq_0
+                        rst_this_seq = "%s/%s/seq_0/seq_0"%(tmpdir, remote_jobid)
+                        # the following folder contains seq.fa and time.txt
+                        rst_this_seq_parent = "%s/%s/seq_0"%(tmpdir, remote_jobid)
 
                         if os.path.islink(outpath_this_seq):
                             os.unlink(outpath_this_seq)
@@ -862,7 +865,16 @@ def GetResult(jobid):#{{{
                         if os.path.exists(rst_this_seq) and not os.path.exists(outpath_this_seq):
                             cmd = ["mv","-f", rst_this_seq, outpath_this_seq]
                             webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
-                            checkfile = "%s/plot/query_0.png"%(outpath_this_seq)
+                            # move also seq.fa and time.txt
+                            file1 = rst_this_seq_parent + os.sep + 'seq.fa'
+                            file2 = rst_this_seq_parent + os.sep + 'time.txt'
+                            for f in [file1, file2]:
+                                if os.path.exists(f):
+                                    try:
+                                        shutil.move(f, outpath_this_seq)
+                                    except:
+                                        pass
+                            checkfile = "%s/query.predict.png"%(outpath_this_seq)
                             if os.path.exists(checkfile):
                                 isSuccess = True
 
@@ -875,8 +887,8 @@ def GetResult(jobid):#{{{
                                 if os.path.exists(cachedir):
                                     try:
                                         shutil.rmtree(cachedir)
-                                    except Exception,e:
-                                        myfunc.WriteFile("\tFailed to shutil.rmtree(%s) with %s\n"%(cachedir, str(e)), gen_errfile, "a", True)
+                                    except Exception as e:
+                                        webcom.loginfo("\tFailed to shutil.rmtree(%s) with %s\n"%(cachedir, str(e)), gen_errfile)
                                         pass
 
                                 if not os.path.exists(md5_subfolder):
