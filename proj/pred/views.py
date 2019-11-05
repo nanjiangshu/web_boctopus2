@@ -1510,7 +1510,7 @@ def get_results(request, jobid="1"):#{{{
 
     # re-define runtime as the sum of all real running time 
     if sum_run_time > 0.0:
-        resultdict['runtime'] = myfunc.second_to_human(sum_run_time)
+        resultdict['runtime'] = myfunc.second_to_human(int(sum_run_time+0.5))
 
     resultdict['num_row_result_table'] = len(resultdict['index_table_content_list'])
 
