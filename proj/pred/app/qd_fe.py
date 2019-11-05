@@ -89,6 +89,7 @@ computenodefile = "%s/config/computenode.txt"%(basedir)
 gen_errfile = "%s/static/log/%s.err"%(basedir, progname)
 gen_logfile = "%s/static/log/%s.log"%(basedir, progname)
 black_iplist_file = "%s/config/black_iplist.txt"%(basedir)
+vip_email_file = "%s/config/vip_email.txt"%(basedir)
 
 def PrintHelp(fpout=sys.stdout):#{{{
     print >> fpout, usage_short
