@@ -1136,7 +1136,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
 
         # Now write the text output to a single file
         statfile = "%s/%s"%(outpath_result, "stat.txt")
-        resultfile_text = "%s/%s"%(outpath_result, "query.result.txt")
+        resultfile_text = "%s/%s"%(outpath_result, "query.top")
         (seqIDList, seqAnnoList, seqList) = myfunc.ReadFasta(seqfile)
         maplist = []
         for i in xrange(len(seqIDList)):
