@@ -1382,22 +1382,23 @@ def RunStatistics(path_result, path_log):#{{{
     for i in xrange(len(flist)):
         dt = dictlist[i]
         outfile = flist[i]
-        sortedlist = sorted(dt.items(), key = lambda x:x[0])
-        try:
-            fpout = open(outfile,"w")
-            for j in xrange(len(sortedlist)):
-                nseq = sortedlist[j][0]
-                count = sortedlist[j][1]
-                fpout.write("%d\t%d\n"%(nseq,count))
-            fpout.close()
-            #plot
-            cmd = ["%s/app/plot_numseq_of_job.sh"%(basedir), outfile]
-            webcom.RunCmd(cmd, gen_logfile, gen_errfile)
-        except IOError:
-            continue
-    cmd = ["%s/app/plot_numseq_of_job_mtp.sh"%(basedir), "-web",
-            outfile_numseqjob_web, "-wsdl", outfile_numseqjob_wsdl]
-    webcom.RunCmd(cmd, gen_logfile, gen_errfile)
+        if os.path.getsize(outfile) > 0:
+            sortedlist = sorted(dt.items(), key = lambda x:x[0])
+            try:
+                fpout = open(outfile,"w")
+                for j in xrange(len(sortedlist)):
+                    nseq = sortedlist[j][0]
+                    count = sortedlist[j][1]
+                    fpout.write("%d\t%d\n"%(nseq,count))
+                fpout.close()
+                cmd = ["%s/app/plot_numseq_of_job.sh"%(basedir), outfile]
+                webcom.RunCmd(cmd, gen_logfile, gen_errfile)
+            except IOError:
+                continue
+    if os.path.getsize(outfile_numseqjob_wsdl) > 0:
+        cmd = ["%s/app/plot_numseq_of_job_mtp.sh"%(basedir), "-web",
+                outfile_numseqjob_web, "-wsdl", outfile_numseqjob_wsdl]
+        webcom.RunCmd(cmd, gen_logfile, gen_errfile)
 
 
 #5. output num-submission time series with different bins (day, week, month, year)
@@ -1531,8 +1532,7 @@ def RunStatistics(path_result, path_log):#{{{
             fpout.close()
         except IOError:
             pass
-        #plot
-        if os.path.exists(outfile):
+        if os.path.getsize(outfile) > 0
             cmd = ["%s/app/plot_numsubmit.sh"%(basedir), outfile]
             webcom.RunCmd(cmd, gen_logfile, gen_errfile)
 
