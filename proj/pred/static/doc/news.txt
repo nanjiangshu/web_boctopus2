@@ -13,3 +13,8 @@
 # <DATE>  2015-05-06 16:02:24 CEST
 # <TITLE>  Tab news added
 # <CONTENT>  Now you can browse statistics of jobs
+<DATE>  2019-11-07 23:32:51 CET
+<TITLE>  Increase maximum number of input sequences per query
+<CONTENT>  We have redesigned the web-server with distributed computing which
+allows the user to input up to 500 sequences per submission, compared to
+merely 5 sequences previously.
