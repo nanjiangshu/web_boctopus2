@@ -208,6 +208,7 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
         finished_job_dict = myfunc.ReadFinishedJobLog(finishedjoblogfile)
 
     new_finished_list = []  # Finished or Failed
+    new_submitted_list = []  # 
     new_runjob_list = []    # Running
     new_waitjob_list = []    # Queued
     lines = hdl.readlines()
@@ -232,13 +233,17 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                 numseq = int(numseq_str)
             except:
                 pass
+            isRstFolderExist = False
+            if os.path.exists(rstdir):
+                isRstFolderExist = True
+            if isRstFolderExist:
+                new_submitted_list.append([jobid,line])
 
             if jobid in finished_job_dict:
-                if os.path.exists(rstdir):
+                if isRstFolderExist:
                     li = [jobid] + finished_job_dict[jobid]
                     new_finished_list.append(li)
                 continue
-
 
             status = get_job_status(jobid)
 
@@ -279,6 +284,15 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
         lines = hdl.readlines()
     hdl.close()
 
+# re-write logs of submitted jobs
+    li_str = []
+    for li in new_submitted_list:
+        li_str.append(li[1])
+    if len(li_str)>0:
+        myfunc.WriteFile("\n".join(li_str)+"\n", submitjoblogfile, "w", True)
+    else:
+        myfunc.WriteFile("", submitjoblogfile, "w", True)
+
 # re-write logs of finished jobs
     li_str = []
     for li in new_finished_list:
@@ -318,6 +332,17 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             li_str.append("\t".join(li))
     if len(li_str)>0:
         myfunc.WriteFile("\n".join(li_str)+"\n", allfinishedjoblogfile, "a", True)
+
+# update all_submitted jobs
+    allsubmitjoblogfile = "%s/all_submitted_seq.log"%(path_log)
+    allsubmitted_jobid_set = set(myfunc.ReadIDList2(allsubmitjoblogfile, col=1, delim="\t"))
+    li_str = []
+    for li in new_submitted_list:
+        jobid = li[0]
+        if not jobid in allsubmitted_jobid_set:
+            li_str.append(li[1])
+    if len(li_str)>0:
+        myfunc.WriteFile("\n".join(li_str)+"\n", allsubmitjoblogfile, "a", True)
 
 # write logs of running and queuing jobs
 # the queuing jobs are sorted in descending order by the suq priority
@@ -1176,9 +1201,9 @@ def RunStatistics(path_result, path_log):#{{{
 # show also runtime of type and runtime -vs- seqlength
     myfunc.WriteFile("RunStatistics...\n", gen_logfile, "a", True)
     allfinishedjoblogfile = "%s/all_finished_job.log"%(path_log)
+    allsubmitjoblogfile = "%s/all_submitted_seq.log"%(path_log)
     runtimelogfile = "%s/jobruntime.log"%(path_log)
     runtimelogfile_finishedjobid = "%s/jobruntime_finishedjobid.log"%(path_log)
-    submitjoblogfile = "%s/submitted_seq.log"%(path_log)
     if not os.path.exists(path_stat):
         os.mkdir(path_stat)
 
@@ -1376,7 +1401,7 @@ def RunStatistics(path_result, path_log):#{{{
 
 
 #5. output num-submission time series with different bins (day, week, month, year)
-    hdl = myfunc.ReadLineByBlock(submitjoblogfile)
+    hdl = myfunc.ReadLineByBlock(allsubmitjoblogfile)
     dict_submit_day = {}  #["name" numjob, numseq, numjob_web, numseq_web,numjob_wsdl, numseq_wsdl]
     dict_submit_week = {}
     dict_submit_month = {}
