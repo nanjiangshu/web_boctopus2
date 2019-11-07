@@ -1532,7 +1532,7 @@ def RunStatistics(path_result, path_log):#{{{
             fpout.close()
         except IOError:
             pass
-        if os.path.getsize(outfile) > 0
+        if os.path.getsize(outfile) > 0:
             cmd = ["%s/app/plot_numsubmit.sh"%(basedir), outfile]
             webcom.RunCmd(cmd, gen_logfile, gen_errfile)
 
