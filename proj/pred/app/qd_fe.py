@@ -1647,9 +1647,9 @@ def main(g_params):#{{{
                             myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
                             continue
 
-                        if IsHaveAvailNode(cntSubmitJobDict):
-                            if not g_params['DEBUG_NO_SUBMIT']:
-                                SubmitJob(jobid, cntSubmitJobDict, numseq_this_user)
+                        #if IsHaveAvailNode(cntSubmitJobDict):
+                        if not g_params['DEBUG_NO_SUBMIT']:
+                            SubmitJob(jobid, cntSubmitJobDict, numseq_this_user)
                         GetResult(jobid) # the start tagfile is written when got the first result
                         CheckIfJobFinished(jobid, numseq, email)
 
