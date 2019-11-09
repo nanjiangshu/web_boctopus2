@@ -334,7 +334,7 @@ def RunQuery(request, query):#{{{
     base_www_url = "http://" + request.META['HTTP_HOST']
     query['base_www_url'] = base_www_url
 
-    if query['numseq'] <= 0: #not jobs are submitted to the front-end server, this value can be set to 1 if single sequence jobs submitted via web interface will be run on the front end
+    if query['numseq'] <= 0: #no jobs are submitted to the front-end server, this value can be set to 1 if single sequence jobs submitted via web interface will be run on the front end
         query['numseq_this_user'] = 1
         SubmitQueryToLocalQueue(query, tmpdir, rstdir, isOnlyGetCache=False)
 

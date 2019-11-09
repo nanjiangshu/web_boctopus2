@@ -276,7 +276,9 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
             else:
                 queuetime_in_sec = UPPER_WAIT_TIME_IN_SEC + 1
 
-            if numseq > 1 or method_submission == "wsdl" or queuetime_in_sec > UPPER_WAIT_TIME_IN_SEC:
+            #if numseq > 1 or method_submission == "wsdl" or queuetime_in_sec > UPPER_WAIT_TIME_IN_SEC:
+            # note that all jobs are handled by the qd
+            if 1:
                 if status == "Running":
                     new_runjob_list.append(li)
                 elif status == "Wait":
