@@ -151,11 +151,11 @@ def index(request):#{{{
     path_tmp = "%s/static/tmp"%(SITE_ROOT)
     path_md5 = "%s/static/md5"%(SITE_ROOT)
     if not os.path.exists(path_result):
-        os.mkdir(path_result, 0755)
+        os.mkdir(path_result, 0o755)
     if not os.path.exists(path_result):
-        os.mkdir(path_tmp, 0755)
+        os.mkdir(path_tmp, 0o755)
     if not os.path.exists(path_md5):
-        os.mkdir(path_md5, 0755)
+        os.mkdir(path_md5, 0o755)
     base_www_url_file = "%s/static/log/base_www_url.txt"%(SITE_ROOT)
     if not os.path.exists(base_www_url_file):
         base_www_url = "http://" + request.META['HTTP_HOST']
@@ -219,7 +219,7 @@ def submit_seq(request):#{{{
 
             try:
                 seqfile = request.FILES['seqfile']
-            except KeyError, MultiValueDictKeyError:
+            except KeyError as MultiValueDictKeyError:
                 seqfile = ""
             date_str = time.strftime(g_params['FORMAT_DATETIME'])
             query = {}
@@ -308,8 +308,8 @@ def RunQuery(request, query):#{{{
     errmsg = []
     tmpdir = tempfile.mkdtemp(prefix="%s/static/tmp/tmp_"%(SITE_ROOT))
     rstdir = tempfile.mkdtemp(prefix="%s/static/result/rst_"%(SITE_ROOT))
-    os.chmod(tmpdir, 0755)
-    os.chmod(rstdir, 0755)
+    os.chmod(tmpdir, 0o755)
+    os.chmod(rstdir, 0o755)
     jobid = os.path.basename(rstdir)
     query['jobid'] = jobid
 
@@ -347,8 +347,8 @@ def RunQuery_wsdl(rawseq, filtered_seq, seqinfo):#{{{
     errmsg = []
     tmpdir = tempfile.mkdtemp(prefix="%s/static/tmp/tmp_"%(SITE_ROOT))
     rstdir = tempfile.mkdtemp(prefix="%s/static/result/rst_"%(SITE_ROOT))
-    os.chmod(tmpdir, 0755)
-    os.chmod(rstdir, 0755)
+    os.chmod(tmpdir, 0o755)
+    os.chmod(rstdir, 0o755)
     jobid = os.path.basename(rstdir)
     seqinfo['jobid'] = jobid
     numseq = seqinfo['numseq']
@@ -378,8 +378,8 @@ def RunQuery_wsdl_local(rawseq, filtered_seq, seqinfo):#{{{
     errmsg = []
     tmpdir = tempfile.mkdtemp(prefix="%s/static/tmp/tmp_"%(SITE_ROOT))
     rstdir = tempfile.mkdtemp(prefix="%s/static/result/rst_"%(SITE_ROOT))
-    os.chmod(tmpdir, 0755)
-    os.chmod(rstdir, 0755)
+    os.chmod(tmpdir, 0o755)
+    os.chmod(rstdir, 0o755)
     jobid = os.path.basename(rstdir)
     seqinfo['jobid'] = jobid
     numseq = seqinfo['numseq']
@@ -1116,9 +1116,9 @@ def get_serverstatus(request):#{{{
     # get most active users by num_job
     activeuserli_njob_header = ["IP", "Country", "NumJob", "NumSeq"]
     activeuserli_njob = []
-    rawlist = sorted(user_dict.items(), key=lambda x:x[1][0], reverse=True)
+    rawlist = sorted(list(user_dict.items()), key=lambda x:x[1][0], reverse=True)
     cnt = 0
-    for i in xrange(len(rawlist)):
+    for i in range(len(rawlist)):
         cnt += 1
         ip = rawlist[i][0]
         njob = rawlist[i][1][0]
@@ -1136,9 +1136,9 @@ def get_serverstatus(request):#{{{
     # get most active users by num_seq
     activeuserli_nseq_header = ["IP", "Country", "NumJob", "NumSeq"]
     activeuserli_nseq = []
-    rawlist = sorted(user_dict.items(), key=lambda x:x[1][1], reverse=True)
+    rawlist = sorted(list(user_dict.items()), key=lambda x:x[1][1], reverse=True)
     cnt = 0
-    for i in xrange(len(rawlist)):
+    for i in range(len(rawlist)):
         cnt += 1
         ip = rawlist[i][0]
         njob = rawlist[i][1][0]
@@ -1249,7 +1249,7 @@ def help_wsdl_api(request):#{{{
     api_script_lang_list = ["Python"]
     api_script_info_list = []
 
-    for i in xrange(len(extlist)):
+    for i in range(len(extlist)):
         ext = extlist[i]
         api_script_file = "%s/%s/%s"%(SITE_ROOT,
                 "static/download/script", "%s%s"%(api_script_rtname,
@@ -1260,7 +1260,7 @@ def help_wsdl_api(request):#{{{
         cmd = [api_script_file, "-h"]
         try:
             usage = subprocess.check_output(cmd)
-        except subprocess.CalledProcessError, e:
+        except subprocess.CalledProcessError as e:
             usage = ""
         api_script_info_list.append([api_script_lang_list[i], api_script_basename, usage])
 
@@ -1617,7 +1617,7 @@ def get_results_eachseq(request, jobid="1", seqindex="1"):#{{{
         topolist = []
         TMlist = []
         methodlist = ['BOCTOPUS2']
-        for i in xrange(len(methodlist)):
+        for i in range(len(methodlist)):
             color = "#000000"
             seqid = ""
             seqanno = ""

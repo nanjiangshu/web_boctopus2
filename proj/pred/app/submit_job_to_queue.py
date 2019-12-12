@@ -63,9 +63,9 @@ Examples:
 """%(progname)
 
 def PrintHelp(fpout=sys.stdout):#{{{
-    print >> fpout, usage_short
-    print >> fpout, usage_ext
-    print >> fpout, usage_exp#}}}
+    print(usage_short, file=fpout)
+    print(usage_ext, file=fpout)
+    print(usage_exp, file=fpout)#}}}
 
 def SubmitJobToQueue(jobid, datapath, outpath, numseq, numseq_this_user, email, #{{{
         host_ip, base_www_url):
@@ -97,7 +97,7 @@ def SubmitJobToQueue(jobid, datapath, outpath, numseq, numseq_this_user, email, 
     myfunc.WriteFile(msg+"\n", g_params['debugfile'], "a")
 
     myfunc.WriteFile(code, scriptfile)
-    os.chmod(scriptfile, 0755)
+    os.chmod(scriptfile, 0o755)
 
     myfunc.WriteFile("Getting priority"+"\n", g_params['debugfile'], "a")
     priority = myfunc.GetSuqPriority(numseq_this_user)
@@ -128,9 +128,9 @@ def SubmitSuqJob(suq_basedir, datapath, outpath, priority, scriptfile):#{{{
             rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             isSubmitSuccess = True
             break
-        except subprocess.CalledProcessError, e:
-            print  e
-            print rmsg
+        except subprocess.CalledProcessError as e:
+            print(e)
+            print(rmsg)
             myfunc.WriteFile(str(e)+"\n"+rmsg+"\n", g_params['debugfile'], "a")
             pass
         cnttry += 1
@@ -209,9 +209,9 @@ def main(g_params):#{{{
         cmd =  ["mkdir", "-p", outpath]
         try:
             rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError, e:
-            print e
-            print rmsg
+        except subprocess.CalledProcessError as e:
+            print(e)
+            print(rmsg)
             return 1
 
     if jobid == "":
