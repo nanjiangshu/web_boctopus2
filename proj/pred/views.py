@@ -57,8 +57,8 @@ path_log = "%s/static/log"%(SITE_ROOT)
 path_stat = "%s/static/log/stat"%(SITE_ROOT)
 path_result = "%s/static/result"%(SITE_ROOT)
 
-import myfunc
-import webserver_common as webcom
+from libpredweb import myfunc
+from libpredweb import webserver_common as webcom
 
 TZ = webcom.TZ
 os.environ['TZ'] = TZ
@@ -1008,6 +1008,9 @@ def get_serverstatus(request):#{{{
 
 # javascript to show finished sequences of the data (histogram)
 
+# get jobs queued locally (at the front end)
+    num_seq_in_local_queue = 0
+
 # get jobs queued remotely ()
     runjob_dict = {}
     if os.path.exists(logfile_runjob):
@@ -1024,6 +1027,8 @@ def get_serverstatus(request):#{{{
             num_finished = 0
 
         cntseq_in_remote_queue += (numseq - num_finished)
+
+
 
 # get number of finished seqs
     allfinishedjoblogfile = "%s/all_finished_job.log"%(path_log)
@@ -1220,6 +1225,7 @@ def get_serverstatus(request):#{{{
     info['num_finished_jobs_wsdl_str'] = str(numjob_wsdl)
     info['num_unique_ip_str'] = str(info['num_unique_ip'])
     info['num_unique_country_str'] = str(info['num_unique_country'])
+    info['num_seq_in_local_queue'] = num_seq_in_local_queue
     info['num_seq_in_remote_queue'] = cntseq_in_remote_queue
     info['activeuserli_nseq_header'] = activeuserli_nseq_header
     info['activeuserli_njob_header'] = activeuserli_njob_header
@@ -1233,6 +1239,7 @@ def get_serverstatus(request):#{{{
     info['li_mostTM'] = li_mostTM
 
     info['startdate'] = startdate
+    info['BASEURL'] = g_params['BASEURL']
     info['jobcounter'] = webcom.GetJobCounter(info)
     return render(request, 'pred/serverstatus.html', info)
 #}}}
@@ -1244,7 +1251,7 @@ def help_wsdl_api(request):#{{{
     info = {}
     set_basic_config(request, info)
     info['jobcounter'] = webcom.GetJobCounter(info)
-    api_script_rtname =  "topcons2_wsdl"
+    api_script_rtname =  "boctopus2_wsdl"
     extlist = [".py"]
     api_script_lang_list = ["Python"]
     api_script_info_list = []
