@@ -913,7 +913,12 @@ def GetResult(jobid):#{{{
                     if os.path.exists(outfile_zip) and isRetrieveSuccess:
                         cmd = ["unzip", outfile_zip, "-d", tmpdir]
                         webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
-                        rst_this_seq = "%s/%s/seq_0"%(tmpdir, remote_jobid)
+                        # the result structure for boctopus2 is slightly
+                        # different compared to other prediction methods, it is
+                        # rstdir/seq_0/seq_0
+                        rst_this_seq = "%s/%s/seq_0/seq_0"%(tmpdir, remote_jobid)
+                        # the following folder contains seq.fa and time.txt
+                        rst_this_seq_parent = "%s/%s/seq_0"%(tmpdir, remote_jobid)
 
                         if os.path.islink(outpath_this_seq):
                             os.unlink(outpath_this_seq)
@@ -923,7 +928,16 @@ def GetResult(jobid):#{{{
                         if os.path.exists(rst_this_seq) and not os.path.exists(outpath_this_seq):
                             cmd = ["mv","-f", rst_this_seq, outpath_this_seq]
                             webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
-                            checkfile = "%s/plot/query_0.png"%(outpath_this_seq)
+                            # move also seq.fa and time.txt
+                            file1 = rst_this_seq_parent + os.sep + 'seq.fa'
+                            file2 = rst_this_seq_parent + os.sep + 'time.txt'
+                            for f in [file1, file2]:
+                                if os.path.exists(f):
+                                    try:
+                                        shutil.move(f, outpath_this_seq)
+                                    except:
+                                        pass
+                            checkfile = "%s/query.predict.png"%(outpath_this_seq)
                             if os.path.exists(checkfile):
                                 isSuccess = True
 
