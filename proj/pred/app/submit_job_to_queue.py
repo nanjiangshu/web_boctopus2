@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # Description: submit job to queue
 # ChangeLog 2015-03-26 
 #   1. suq ntask is set universally for each node by the qd_topcons2_fe.py
@@ -11,35 +10,31 @@
 #   try
 import os
 import sys
-import myfunc
 import subprocess
 import time
 import math
-import webserver_common as webcom
+from libpredweb import myfunc
+from libpredweb import webserver_common as webcom
+suq_exec = "/usr/bin/suq"
 progname =  os.path.basename(__file__)
 wspace = ''.join([" "]*len(progname))
 
-rundir = os.path.dirname(os.path.realpath(__file__))
-webserver_root = os.path.realpath("%s/../../../"%(rundir))
-basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
-vip_email_file = "%s/config/vip_email.txt"%(basedir) 
+vip_user_list = [
+        "nanjiang.shu@scilifelab.se"
+        ]
 
 rundir = os.path.dirname(os.path.realpath(__file__))
 basedir = os.path.realpath("%s/../"%(rundir))
 python_exec = os.path.realpath("%s/../../env/bin/python"%(basedir))
+virt_env_path = os.path.realpath("%s/../../env"%(basedir))   
 suq_basedir = "/tmp"
-if os.path.exists("/scratch"):
-    suq_basedir = "/scratch"
-elif os.path.exists("/tmp"):
-    suq_basedir = "/tmp"
-suq_exec = "/usr/bin/suq";
 gen_errfile = "%s/static/log/%s.log"%(basedir, progname)
 
 usage_short="""
 Usage: %s -nseq INT -jobid STR -outpath DIR -datapath DIR
        %s -email EMAIL -host IP -baseurl BASE_WWW_URL
        %s -nseq-this-user INT
-       %s [-force]
+       %s -only-get-cache [-force]
 
 Description: 
     BASE_WWW_URL e.g. topcons.net
@@ -51,11 +46,12 @@ Description:
     datapath should include query.fa
 
 OPTIONS:
+  -only-get-cache   Only get the cached results, this will be run on the front-end
   -force            Do not use cahced result
   -nseq-this-user   Number of sequences in the queue submitted by this user
   -h, --help    Print this help message and exit
 
-Created 2015-01-20, updated 2015-03-26, Nanjiang Shu
+Created 2015-01-20, updated 2016-12-07, Nanjiang Shu
 """
 usage_exp="""
 Examples:
@@ -69,7 +65,8 @@ def PrintHelp(fpout=sys.stdout):#{{{
 
 def SubmitJobToQueue(jobid, datapath, outpath, numseq, numseq_this_user, email, #{{{
         host_ip, base_www_url):
-    myfunc.WriteFile("Entering SubmitJobToQueue()\n", g_params['debugfile'], "a")
+    myfunc.WriteFile("Entering SubmitJobToQueue()\n", g_params['debugfile'],
+            "a", True)
     fafile = "%s/query.fa"%(datapath)
 
     if numseq == -1:
@@ -82,6 +79,7 @@ def SubmitJobToQueue(jobid, datapath, outpath, numseq, numseq_this_user, email, 
     scriptfile = "%s/runjob;%s;%s;%s;%s;%d.sh"%(outpath, name_software, jobid, host_ip, email, numseq)
     code_str_list = []
     code_str_list.append("#!/bin/bash")
+    code_str_list.append("source %s/bin/activate"%(virt_env_path))
     cmdline = "%s %s -outpath %s -tmpdir %s -jobid %s "%(runjob, fafile, outpath, datapath, jobid)
     if email != "":
         cmdline += "-email \"%s\" "%(email)
@@ -89,57 +87,64 @@ def SubmitJobToQueue(jobid, datapath, outpath, numseq, numseq_this_user, email, 
         cmdline += "-baseurl \"%s\" "%(base_www_url)
     if g_params['isForceRun']:
         cmdline += "-force "
+    if g_params['isOnlyGetCache']:
+        cmdline += "-only-get-cache "
     code_str_list.append(cmdline)
 
     code = "\n".join(code_str_list)
 
     msg = "Write scriptfile %s"%(scriptfile)
-    myfunc.WriteFile(msg+"\n", g_params['debugfile'], "a")
+    myfunc.WriteFile(msg+"\n", g_params['debugfile'], "a", True)
 
-    myfunc.WriteFile(code, scriptfile)
+    myfunc.WriteFile(code, scriptfile, mode="w", isFlush=True)
     os.chmod(scriptfile, 0o755)
 
-    myfunc.WriteFile("Getting priority"+"\n", g_params['debugfile'], "a")
+    myfunc.WriteFile("Getting priority"+"\n", g_params['debugfile'], "a", True)
     priority = myfunc.GetSuqPriority(numseq_this_user)
-    priority = 10     # quick fix debug  2017-09-18
 
-    if email in g_params['vip_user_list']:
+    if email in vip_user_list:
         priority = 999999999.0
 
-    myfunc.WriteFile("priority=%d\n"%(priority), g_params['debugfile'], "a")
+    myfunc.WriteFile("priority=%d\n"%(priority), g_params['debugfile'], "a",
+            True)
 
     st1 = SubmitSuqJob(suq_basedir, datapath, outpath, priority, scriptfile)
 
     return st1
 #}}}
 def SubmitSuqJob(suq_basedir, datapath, outpath, priority, scriptfile):#{{{
-    myfunc.WriteFile("Entering SubmitSuqJob()\n", g_params['debugfile'], "a")
+    myfunc.WriteFile("Entering SubmitSuqJob()\n", g_params['debugfile'], "a",
+            True)
     rmsg = ""
     cmd = [suq_exec,"-b", suq_basedir, "run", "-d", outpath, "-p", "%d"%(priority), scriptfile]
     cmdline = " ".join(cmd)
-    myfunc.WriteFile("cmdline: %s\n\n"%(cmdline), g_params['debugfile'], "a")
+    myfunc.WriteFile("cmdline: %s\n\n"%(cmdline), g_params['debugfile'], "a",
+            True)
     MAX_TRY = 5
     cnttry = 0
     isSubmitSuccess = False
     while cnttry < MAX_TRY:
         try:
             myfunc.WriteFile("run cmd: cnttry = %d, MAX_TRY=%d\n"%(cnttry,
-                MAX_TRY), g_params['debugfile'], "a")
+                MAX_TRY), g_params['debugfile'], "a", True)
             rmsg = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             isSubmitSuccess = True
             break
         except subprocess.CalledProcessError as e:
             print(e)
             print(rmsg)
-            myfunc.WriteFile(str(e)+"\n"+rmsg+"\n", g_params['debugfile'], "a")
+            myfunc.WriteFile(str(e)+"\n"+rmsg+"\n", g_params['debugfile'],
+                    "a", True)
             pass
         cnttry += 1
         time.sleep(0.05+cnttry*0.03)
     if isSubmitSuccess:
-        myfunc.WriteFile("Leaving SubmitSuqJob() with success\n\n", g_params['debugfile'], "a")
+        myfunc.WriteFile("Leaving SubmitSuqJob() with success\n\n",
+                g_params['debugfile'], "a", True)
         return 0
     else:
-        myfunc.WriteFile("Leaving SubmitSuqJob() with error\n\n", g_params['debugfile'], "a")
+        myfunc.WriteFile("Leaving SubmitSuqJob() with error\n\n",
+                g_params['debugfile'], "a", True)
         return 1
 #}}}
 def main(g_params):#{{{
@@ -162,7 +167,7 @@ def main(g_params):#{{{
     isNonOptionArg=False
     while i < numArgv:
         if isNonOptionArg == True:
-            webcom.loginfo("Error! Wrong argument: %s"(argv[i]), gen_errfile)
+            webcom.loginfo("Error! Wrong argument: %s"% (argv[i]), gen_errfile)
             return 1
             isNonOptionArg = False
             i += 1
@@ -192,14 +197,17 @@ def main(g_params):#{{{
             elif argv[i] in ["-force", "--force"]:
                 g_params['isForceRun'] = True
                 i += 1
+            elif argv[i] in ["-only-get-cache", "--only-get-cache"]:
+                g_params['isOnlyGetCache'] = True
+                i += 1
             elif argv[i] in ["-q", "--q"]:
                 g_params['isQuiet'] = True
                 i += 1
             else:
-                webcom.loginfo("Error! Wrong argument: %s"(argv[i]), gen_errfile)
+                webcom.loginfo("Error! Wrong argument: %s"%(argv[i]), gen_errfile)
                 return 1
         else:
-            webcom.loginfo("Error! Wrong argument: %s"(argv[i]), gen_errfile)
+            webcom.loginfo("Error! Wrong argument: %s"%(argv[i]), gen_errfile)
             return 1
 
     if outpath == "":
@@ -228,10 +236,9 @@ def main(g_params):#{{{
         webcom.loginfo("%s: file %s/query.fa does not exist. exit"%(sys.argv[0], datapath), gen_errfile)
         return 1
 
-    g_params['vip_user_list'] = myfunc.ReadIDList(vip_email_file)
-
     g_params['debugfile'] = "%s/debug.log"%(outpath)
 
+    myfunc.WriteFile("Go to SubmitJobToQueue()\n", g_params['debugfile'], "a", True)
     return SubmitJobToQueue(jobid, datapath, outpath, numseq, numseq_this_user,
             email, host_ip, base_www_url)
 
@@ -241,7 +248,7 @@ def InitGlobalParameter():#{{{
     g_params = {}
     g_params['isQuiet'] = True
     g_params['isForceRun'] = False
-    g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
+    g_params['isOnlyGetCache'] = False
     return g_params
 #}}}
 if __name__ == '__main__' :
