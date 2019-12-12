@@ -1,0 +1,2 @@
+localhost
+dev.boctopus2.bioinfo.se
