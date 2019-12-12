@@ -1,1 +1,2 @@
-subcons.computenode.shu.se 1
+#NodeName Max_parallel queue_method
+commonbackend.computenode.pcons3.se 8 suq
