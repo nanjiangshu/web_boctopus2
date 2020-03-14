@@ -19,6 +19,7 @@ sys.path.append("/usr/local/lib/python2.7/dist-packages")
 from libpredweb import myfunc
 from libpredweb import dataprocess
 from libpredweb import webserver_common as webcom
+from libpredweb import qd_fe_common as qdcom
 import time
 from datetime import datetime
 from dateutil import parser as dtparser
@@ -1539,14 +1540,13 @@ def main(g_params):#{{{
 
         isOldRstdirDeleted = False
         if loop % g_params['STATUS_UPDATE_FREQUENCY'][0] == g_params['STATUS_UPDATE_FREQUENCY'][1]:
-            RunStatistics(path_result, path_log)
+            qdcom.RunStatistics_basic(webserver_root, gen_logfile, gen_errfile)
             isOldRstdirDeleted = webcom.DeleteOldResult(path_result, path_log,
                     gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
             webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
         webcom.ArchiveLogFile(path_log, threshold_logfilesize=threshold_logfilesize) 
 
-        CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,
-                finishedjoblogfile, loop, isOldRstdirDeleted)
+        qdcom.CreateRunJoblog(loop, isOldRstdirDeleted, g_params)
 
         # Get number of jobs submitted to the remote server based on the
         # runjoblogfile
@@ -1610,9 +1610,9 @@ def main(g_params):#{{{
 
                         #if IsHaveAvailNode(cntSubmitJobDict):
                         if not g_params['DEBUG_NO_SUBMIT']:
-                            SubmitJob(jobid, cntSubmitJobDict, numseq_this_user)
-                        GetResult(jobid) # the start tagfile is written when got the first result
-                        CheckIfJobFinished(jobid, numseq, email)
+                            qdcom.SubmitJob(jobid, cntSubmitJobDict, numseq_this_user, g_params)
+                        qdcom.GetResult(jobid, g_params) # the start tagfile is written when got the first result
+                        qdcom.CheckIfJobFinished(jobid, numseq, email, g_params)
 
                 lines = hdl.readlines()
             hdl.close()
@@ -1620,7 +1620,6 @@ def main(g_params):#{{{
         myfunc.WriteFile("sleep for %d seconds\n"%(g_params['SLEEP_INTERVAL']), gen_logfile, "a", True)
         time.sleep(g_params['SLEEP_INTERVAL'])
         loop += 1
-
 
     return 0
 #}}}
@@ -1643,6 +1642,16 @@ def InitGlobalParameter():#{{{
     g_params['TZ'] = "Europe/Stockholm"
     g_params['MAX_CACHE_PROCESS'] = 200 # process at the maximum this cached sequences in one loop
     g_params['STATUS_UPDATE_FREQUENCY'] = [500, 50]  # updated by if loop%$1 == $2
+    g_params['name_server'] = "Boctopus2"
+    g_params['path_static'] = path_static
+    g_params['path_result'] = path_result
+    g_params['path_log'] = path_log
+    g_params['path_cache'] = path_cache
+    g_params['vip_email_file'] = vip_email_file
+    g_params['gen_logfile'] = gen_logfile
+    g_params['finished_date_db'] = finished_date_db
+    g_params['gen_errfile'] = gen_errfile
+    g_params['contact_email'] = contact_email
     return g_params
 #}}}
 if __name__ == '__main__' :
