@@ -139,9 +139,7 @@ def GetNumSuqJob(node):#{{{
         else:
             return -1
     except:
-        date_str = time.strftime(g_params['FORMAT_DATETIME'])
-        myfunc.WriteFile("[%s] requests.get(%s) failed\n"%(date_str,
-            url), gen_errfile, "a", True)
+        webcom.loginfo("requests.get(%s) failed\n"%(url), gen_logfile)
         return -1
 
 #}}}
@@ -575,9 +573,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                             shutil.copytree(cachedir, outpath_this_seq)
                         except Exception as e:
                             msg = "Failed to copytree  %s -> %s"%(cachedir, outpath_this_seq)
-                            date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                            myfunc.WriteFile("[%s] %s with errmsg=%s\n"%(date_str, 
-                                msg, str(e)), runjob_errfile, "a")
+                            webcom.loginfo("%s with errmsg=%s\n"%(msg, str(e)), runjob_errfile)
                     elif os.path.exists(zipfile_cache):
                         cmd = ["unzip", zipfile_cache, "-d", outpath_result]
                         webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
@@ -596,9 +592,8 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         myfunc.WriteFile("%d\n"%(i), finished_idx_file, "a", True)
 
                     if g_params['DEBUG']:
-                        date_str = time.strftime(g_params['FORMAT_DATETIME'])
                         msg = "Get result from cache for seq_%d"%(i)
-                        myfunc.WriteFile("DEBUG [%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
+                        webcom.loginfo(msg, gen_logfile)
                     if cnt_processed_cache+1 >= g_params['MAX_CACHE_PROCESS']:
                         myfunc.WriteFile(str(i), lastprocessed_cache_idx_file, "w", True)
                         return 0
@@ -721,9 +716,8 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                                 gen_logfile, "a", True)
                         rtValue = myclient.service.submitjob_remote(fastaseq, para_str,
                                 jobname, useemail, str(numseq_this_user), isforcerun)
-                    except:
-                        date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                        myfunc.WriteFile("[%s] Failed to run myclient.service.submitjob_remote\n"%(date_str), gen_errfile, "a", True)
+                    except Exception as e:
+                        webcom.loginfo("Failed to run myclient.service.submitjob_remote with error message=%s, rtValue=%s\n"%(str(e), str(rtValue), gen_logfile)
                         rtValue = []
                         pass
 
@@ -968,9 +962,8 @@ def GetResult(jobid):#{{{
                                 # delete the data on the remote server
                                 try:
                                     rtValue2 = myclient.service.deletejob(remote_jobid)
-                                except:
-                                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                                    myfunc.WriteFile( "[Date: %s] Failed to run myclient.service.deletejob(%s)\n"%(date_str, remote_jobid), gen_errfile, "a", True)
+                                except Exception as e:
+                                    webcom.loginfo("Failed to run myclient.service.deletejob(%s), with errmsg=%s\n"%(remote_jobid, str(e)), gen_logfile)
                                     rtValue2 = []
                                     pass
 
@@ -1079,8 +1072,7 @@ def GetResult(jobid):#{{{
                 try:
                     rtValue2 = myclient.service.deletejob(remote_jobid)
                 except Exception as e:
-                    date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                    myfunc.WriteFile( "[%s] Failed to run myclient.service.deletejob(%s) on node %s with msg %s\n"%(date_str, remote_jobid, node, str(e)), gen_logfile, "a", True)
+                    webcom.loginfo("Failed to run myclient.service.deletejob(%s) on node %s with msg=%s, rtValue2=%s\n"%(remote_jobid, node, str(e), str(rtValue2)), gen_logfile)
                     rtValue2 = []
                     pass
             else:
@@ -1157,9 +1149,8 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         if base_www_url == "":
             base_www_url = "http://boctopus.bioinfo.se"
 
-        date_str = time.strftime(g_params['FORMAT_DATETIME'])
         date_str_epoch = time.time()
-        myfunc.WriteFile(date_str, finishtagfile, "w", True)
+        myfunc.WriteDateTimeTagFile(finishtagfile, runjob_logfile, runjob_errfile)
 
         # Now write the text output to a single file
         statfile = "%s/%s"%(outpath_result, "stat.txt")
@@ -1184,7 +1175,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
 
         if len(failed_idx_list)>0:
-            myfunc.WriteFile(date_str, failedtagfile, "w", True)
+            myfunc.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
 
         if finish_status == "success":
             shutil.rmtree(tmpdir)
@@ -1564,14 +1555,11 @@ def main(g_params):#{{{
         if os.path.exists(black_iplist_file):
             g_params['blackiplist'] = myfunc.ReadIDList(black_iplist_file)
 
-        date_str = time.strftime(g_params['FORMAT_DATETIME'])
         avail_computenode_list = myfunc.ReadIDList2(computenodefile, col=0)
         g_params['vip_user_list'] = myfunc.ReadIDList2(vip_email_file,  col=0)
         num_avail_node = len(avail_computenode_list)
-        if loop == 0:
-            myfunc.WriteFile("[Date: %s] start %s. loop %d\n"%(date_str, progname, loop), gen_logfile, "a", True)
-        else:
-            myfunc.WriteFile("[Date: %s] loop %d\n"%(date_str, loop), gen_logfile, "a", True)
+
+        webcom.loginfo("loop %d"%(loop), gen_logfile)
 
         CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,
                 finishedjoblogfile, loop)
@@ -1643,8 +1631,7 @@ def main(g_params):#{{{
                         runjob_lockfile = "%s/%s/%s.lock"%(path_result, jobid, "runjob.lock")
                         if os.path.exists(runjob_lockfile):
                             msg = "runjob_lockfile %s exists, ignore the job %s" %(runjob_lockfile, jobid)
-                            date_str = time.strftime(g_params['FORMAT_DATETIME'])
-                            myfunc.WriteFile("[%s] %s\n"%(date_str, msg), gen_logfile, "a", True)
+                            webcom.loginfo(msg, gen_logfile)
                             continue
 
                         #if IsHaveAvailNode(cntSubmitJobDict):
@@ -1684,9 +1671,7 @@ def InitGlobalParameter():#{{{
 #}}}
 if __name__ == '__main__' :
     g_params = InitGlobalParameter()
-
     date_str = time.strftime(g_params['FORMAT_DATETIME'])
-    print >> sys.stderr, "\n\n[Date: %s]\n"%(date_str)
-    status = main(g_params)
-
-    sys.exit(status)
+    print("\n#%s#\n[Date: %s] qd_fe.py restarted"%('='*80,date_str))
+    sys.stdout.flush()
+    sys.exit(main(g_params))
