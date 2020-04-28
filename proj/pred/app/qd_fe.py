@@ -1153,7 +1153,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
             base_www_url = "http://boctopus.bioinfo.se"
 
         date_str_epoch = time.time()
-        myfunc.WriteDateTimeTagFile(finishtagfile, runjob_logfile, runjob_errfile)
+        webcom.WriteDateTimeTagFile(finishtagfile, runjob_logfile, runjob_errfile)
 
         # Now write the text output to a single file
         statfile = "%s/%s"%(outpath_result, "stat.txt")
@@ -1178,7 +1178,7 @@ def CheckIfJobFinished(jobid, numseq, email):#{{{
         webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
 
         if len(failed_idx_list)>0:
-            myfunc.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
+            webcom.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
 
         if finish_status == "success":
             shutil.rmtree(tmpdir)
