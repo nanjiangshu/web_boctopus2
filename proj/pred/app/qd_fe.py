@@ -894,6 +894,7 @@ def GetResult(jobid):#{{{
         try:
             myclient = myclientDict[node]
         except KeyError:
+            keep_queueline_list.append(line)
             continue
         try:
             rtValue = myclient.service.checkjob(remote_jobid)
