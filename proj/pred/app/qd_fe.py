@@ -404,8 +404,8 @@ def CreateRunJoblog(path_result, submitjoblogfile, runjoblogfile,#{{{
                                     origIndex, len(seq), description,
                                     source_result="newrun", runtime=runtime)
                             finished_info_list.append("\t".join(info_finish))
-                except:
-                    webcom.loginfo("Failed to os.listdir(%s)"%(outpath_result), gen_errfile)
+                except Exception as e:
+                    webcom.loginfo("Failed to os.listdir(%s) with errmsg=%s"%(outpath_result, str(e)), gen_logfile)
                     raise
                 if len(finished_info_list)>0:
                     myfunc.WriteFile("\n".join(finished_info_list)+"\n", finished_seq_file, "a", True)
@@ -659,8 +659,8 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
             wsdl_url = "http://%s/pred/api_submitseq/?wsdl"%(node)
             try:
                 myclient = Client(wsdl_url, cache=None, timeout=30)
-            except:
-                webcom.loginfo("Failed to access %s\n"%(wsdl_url), gen_errfile)
+            except Exception as e:
+                webcom.loginfo("Failed to access %s with errmsg=%s\n"%(wsdl_url, str(e)), gen_logfile)
                 break
 
             [cnt, maxnum] = cntSubmitJobDict[node]
@@ -740,7 +740,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                                 submitted_loginfo_list.append(txt)
                                 cnttry = 0  #reset cnttry to zero
                         else:
-                            webcom.loginfo("bad wsdl return value", gen_errfile)
+                            webcom.loginfo("bad wsdl return value", gen_logfile)
                 if isSubmitSuccess:
                     cnt += 1
                     myfunc.WriteFile(" succeeded\n", gen_logfile, "a", True)
@@ -868,7 +868,7 @@ def GetResult(jobid):#{{{
             myclient = Client(wsdl_url, cache=None, timeout=30)
             myclientDict[node] = myclient
         except:
-            webcom.loginfo("Failed to access %s"%(wsdl_url), gen_errfile)
+            webcom.loginfo("Failed to access %s"%(wsdl_url), gen_logfile)
             pass
 
 
@@ -897,8 +897,8 @@ def GetResult(jobid):#{{{
             continue
         try:
             rtValue = myclient.service.checkjob(remote_jobid)
-        except:
-            webcom.loginfo("Failed to run myclient.service.checkjob(%s)"%(remote_jobid), gen_errfile)
+        except Exception as e:
+            webcom.loginfo("Failed to run myclient.service.checkjob(%s) with errmsg=%s"%(remote_jobid, str(e)), gen_logfile)
             rtValue = []
             pass
         isSuccess = False
