@@ -717,7 +717,7 @@ def SubmitJob(jobid,cntSubmitJobDict, numseq_this_user):#{{{
                         rtValue = myclient.service.submitjob_remote(fastaseq, para_str,
                                 jobname, useemail, str(numseq_this_user), isforcerun)
                     except Exception as e:
-                        webcom.loginfo("Failed to run myclient.service.submitjob_remote with error message=%s, rtValue=%s\n"%(str(e), str(rtValue)), gen_logfile)
+                        webcom.loginfo("Failed to run myclient.service.submitjob_remote with error message=%s\n"%(str(e)), gen_logfile)
                         rtValue = []
                         pass
 
@@ -1073,7 +1073,7 @@ def GetResult(jobid):#{{{
                 try:
                     rtValue2 = myclient.service.deletejob(remote_jobid)
                 except Exception as e:
-                    webcom.loginfo("Failed to run myclient.service.deletejob(%s) on node %s with msg=%s, rtValue2=%s\n"%(remote_jobid, node, str(e), str(rtValue2)), gen_logfile)
+                    webcom.loginfo("Failed to run myclient.service.deletejob(%s) on node %s with msg=%s\n"%(remote_jobid, node, str(e)), gen_logfile)
                     rtValue2 = []
                     pass
             else:
