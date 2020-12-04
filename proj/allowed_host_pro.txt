@@ -1,3 +1,4 @@
 localhost
 boctopus2.bioinfo.se
 boctopus.bioinfo.se
+b2.topcons.net
