@@ -144,17 +144,28 @@ def RunJob(infile, outpath, tmpdir, email, jobid, g_params):#{{{
                     md5_key = hashlib.md5(rd.seq.encode('utf-8')).hexdigest()
                     subfoldername = md5_key[:2]
                     cachedir = "%s/%s/%s"%(path_cache, subfoldername, md5_key)
-                    if os.path.exists(cachedir):
-                        # create a symlink to the cache
-                        rela_path = os.path.relpath(cachedir, outpath_result) #relative path
-                        os.chdir(outpath_result)
-                        os.symlink(rela_path, subfoldername_this_seq)
+                    zipfile_cache = cachedir + ".zip"
+                    if os.path.exists(cachedir) or os.path.exists(zipfile_cache):
+                        if os.path.exists(cachedir):
+                            try:
+                                shutil.copytree(cachedir, outpath_this_seq)
+                            except Exception as e:
+                                msg = "Failed to copytree  %s -> %s"%(cachedir, outpath_this_seq)
+                                date_str = time.strftime(FORMAT_DATETIME)
+                                myfunc.WriteFile("[%s] %s with errmsg=%s\n"%(date_str, 
+                                    msg, str(e)), runjob_errfile, "a")
+                        elif os.path.exists(zipfile_cache):
+                            cmd = ["unzip", zipfile_cache, "-d", outpath_result]
+                            webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
+                            shutil.move("%s/%s"%(outpath_result, md5_key), outpath_this_seq)
 
-                        if os.path.exists(outpath_this_seq):
-                            runtime = 0.0 #in seconds
+                        checkfile = "%s/query.predict.png"%(outpath_this_seq)
+                        fafile_this_seq =  '%s/seq.fa'%(outpath_this_seq)
+
+                        if os.path.exists(outpath_this_seq) and os.path.exists(checkfile):
                             info_finish = webcom.GetInfoFinish_Boctopus2(outpath_this_seq,
                                     cnt, len(rd.seq), rd.description,
-                                    source_result="cached", runtime=runtime)
+                                    source_result="cached", runtime=0.0)
                             myfunc.WriteFile("\t".join(info_finish)+"\n", finished_seq_file, "a", isFlush=True)
                             myfunc.WriteFile("%d\n"%(cnt), finished_idx_file, "a", isFlush=True)
                             isSkip = True
