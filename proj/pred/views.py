@@ -336,7 +336,7 @@ def RunQuery(request, query):#{{{
     query['base_www_url'] = base_www_url
 
     if query['numseq'] <= 5: #for jobs submitted to the frontend, only get cahced results
-        #query['numseq_this_user'] = 1
+        query['numseq_this_user'] = 1
         SubmitQueryToLocalQueue(query, tmpdir, rstdir, isOnlyGetCache=True)
 
     forceruntagfile = "%s/forcerun"%(rstdir)
