@@ -27,7 +27,6 @@ import urllib.request, urllib.parse, urllib.error
 import shutil
 import hashlib
 import subprocess
-from suds.client import Client
 import numpy
 
 from geoip import geolite2
