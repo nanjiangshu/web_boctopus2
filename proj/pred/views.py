@@ -949,6 +949,12 @@ def get_reference(request):#{{{
     info['jobcounter'] = webcom.GetJobCounter(info)
     return render(request, 'pred/reference.html', info)
 #}}}
+def privacy(request):#{{{
+    info = {}
+    set_basic_config(request, info)
+    info['jobcounter'] = webcom.GetJobCounter(info)
+    return render(request, 'pred/privacy.html', info)
+#}}}
 def get_example(request):#{{{
     info = {}
     set_basic_config(request, info)
