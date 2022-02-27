@@ -240,6 +240,7 @@ def InitGlobalParameter():#{{{
     g_params['finished_date_db'] = finished_date_db
     g_params['gen_errfile'] = gen_errfile
     g_params['contact_email'] = contact_email
+    g_params['webserver_root'] = webserver_root
     return g_params
 #}}}
 if __name__ == '__main__' :
