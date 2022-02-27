@@ -2,25 +2,24 @@
 # Description: run job
 import os
 import sys
-import subprocess
-import time
-from libpredweb import myfunc
-from libpredweb import webserver_common as webcom
-import glob
-import hashlib
-import shutil
-import datetime
 import site
-import fcntl
-progname =  os.path.basename(sys.argv[0])
-wspace = ''.join([" "]*len(progname))
+
 rundir = os.path.dirname(os.path.realpath(__file__))
 webserver_root = os.path.realpath("%s/../../../"%(rundir))
 activate_env="%s/env/bin/activate_this.py"%(webserver_root)
 exec(compile(open(activate_env, "rb").read(), activate_env, 'exec'), dict(__file__=activate_env))
 
-site.addsitedir("%s/env/lib/python2.7/site-packages/"%(webserver_root))
-sys.path.append("/usr/local/lib/python2.7/dist-packages")
+import subprocess
+import time
+import glob
+import hashlib
+import shutil
+import datetime
+import fcntl
+progname =  os.path.basename(sys.argv[0])
+wspace = ''.join([" "]*len(progname))
+from libpredweb import myfunc
+from libpredweb import webserver_common as webcom
 
 runscript = "%s/%s"%(rundir, "soft/boctopus2_newset_hhblits/boctopus_main.py")
 

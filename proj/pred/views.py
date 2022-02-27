@@ -55,6 +55,7 @@ path_app = "%s/app"%(SITE_ROOT)
 sys.path.append(path_app)
 path_log = "%s/static/log"%(SITE_ROOT)
 path_stat = "%s/static/log/stat"%(SITE_ROOT)
+path_static = "%s/static"%(SITE_ROOT)
 path_result = "%s/static/result"%(SITE_ROOT)
 
 from libpredweb import myfunc
@@ -84,6 +85,12 @@ g_params['MAX_ALLOWD_NUMSEQ'] = 5
 g_params['MAX_NUMSEQ_PER_JOB'] = 50000
 g_params['MAX_ALLOWD_NUMSEQ'] = 50000
 g_params['FORMAT_DATETIME'] = webcom.FORMAT_DATETIME
+g_params['STATIC_URL'] = settings.STATIC_URL
+g_params['SUPER_USER_LIST'] = settings.SUPER_USER_LIST
+g_params['path_result'] = path_result
+g_params['SITE_ROOT'] = SITE_ROOT
+g_params['path_static'] = path_static
+g_params['path_stat'] = path_stat
 
 rundir = SITE_ROOT
 
@@ -337,7 +344,8 @@ def RunQuery(request, query):#{{{
 
     if query['numseq'] <= 5: #for jobs submitted to the frontend, only get cahced results
         query['numseq_this_user'] = 1
-        SubmitQueryToLocalQueue(query, tmpdir, rstdir, isOnlyGetCache=True)
+        webcom.SubmitQueryToLocalQueue(query, tmpdir, rstdir, g_params,
+                isOnlyGetCache=True)
 
     forceruntagfile = "%s/forcerun"%(rstdir)
     if query['isForceRun']:
@@ -373,35 +381,6 @@ def RunQuery_wsdl(rawseq, filtered_seq, seqinfo):#{{{
 
     # changed 2015-03-26, any jobs submitted via wsdl is hadndel
     return jobid
-#}}}
-def SubmitQueryToLocalQueue(query, tmpdir, rstdir, isOnlyGetCache=False):#{{{
-    scriptfile = "%s/app/submit_job_to_queue.py"%(SITE_ROOT)
-    rstdir = "%s/%s"%(path_result, query['jobid'])
-    debugfile = "%s/debug.log"%(rstdir) #this log only for debugging
-    runjob_logfile = "%s/runjob.log"%(rstdir)
-    runjob_errfile = "%s/runjob.err"%(rstdir)
-    failedtagfile = "%s/%s"%(rstdir, "runjob.failed")
-    rmsg = ""
-
-    cmd = [python_exec, scriptfile, "-nseq", "%d"%query['numseq'], "-nseq-this-user",
-            "%d"%query['numseq_this_user'], "-jobid", query['jobid'],
-            "-outpath", rstdir, "-datapath", tmpdir, "-baseurl",
-            query['base_www_url'] ]
-    if query['email'] != "":
-        cmd += ["-email", query['email']]
-    if query['client_ip'] != "":
-        cmd += ["-host", query['client_ip']]
-    if query['isForceRun']:
-        cmd += ["-force"]
-    if isOnlyGetCache:
-        cmd += ["-only-get-cache"]
-
-    (isSuccess, t_runtime) = webcom.RunCmd(cmd, runjob_logfile, runjob_errfile)
-    if not isSuccess:
-        webcom.WriteDateTimeTagFile(failedtagfile, runjob_logfile, runjob_errfile)
-        return 1
-    else:
-        return 0
 #}}}
 
 def thanks(request):#{{{
