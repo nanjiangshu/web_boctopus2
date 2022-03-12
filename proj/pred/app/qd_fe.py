@@ -1,44 +1,32 @@
 #!/usr/bin/env python
-# Description: daemon to submit jobs and retrieve results to/from remote
-#              servers
-# 
+"""
+Description:
+    Daemon to submit jobs and retrieve results to/from remote servers
+    run periodically
+    At the end of each run generate a runlog file with the status of all jobs
+"""
 import os
 import sys
-import site
 
 rundir = os.path.dirname(os.path.realpath(__file__))
 webserver_root = os.path.realpath("%s/../../../"%(rundir))
-
+# Add the site-packages of the virtualenv
 activate_env="%s/env/bin/activate_this.py"%(webserver_root)
 exec(compile(open(activate_env, "rb").read(), activate_env, 'exec'), dict(__file__=activate_env))
-#Add the site-packages of the virtualenv
 
 from libpredweb import myfunc
 from libpredweb import dataprocess
 from libpredweb import webserver_common as webcom
 from libpredweb import qd_fe_common as qdcom
 import time
-from datetime import datetime
-from dateutil import parser as dtparser
-from pytz import timezone
-import requests
 import json
-import urllib.request, urllib.parse, urllib.error
-import shutil
-import hashlib
-import subprocess
-import numpy
-
-from geoip import geolite2
-import pycountry
-
+import fcntl
 
 # make sure that only one instance of the script is running
 # this code is working 
 progname = os.path.basename(__file__)
 rootname_progname = os.path.splitext(progname)[0]
 lockname = os.path.realpath(__file__).replace(" ", "").replace("/", "-")
-import fcntl
 lock_file = "/tmp/%s.lock"%(lockname)
 fp = open(lock_file, 'w')
 try:
@@ -51,23 +39,6 @@ contact_email = "nanjiang.shu@scilifelab.se"
 
 threshold_logfilesize = 20*1024*1024
 
-usage_short="""
-Usage: %s
-"""%(sys.argv[0])
-
-usage_ext="""
-Description:
-    Daemon to submit jobs and retrieve results to/from remote servers
-    run periodically
-    At the end of each run generate a runlog file with the status of all jobs
-
-OPTIONS:
-  -h, --help    Print this help message and exit
-
-Created 2015-03-25, updated 2015-03-25, Nanjiang Shu
-"""
-usage_exp="""
-"""
 
 basedir = os.path.realpath("%s/.."%(rundir)) # path of the application, i.e. pred/
 path_static = "%s/static"%(basedir)
@@ -87,25 +58,20 @@ black_iplist_file = "%s/config/black_iplist.txt"%(basedir)
 finished_date_db = "%s/cached_job_finished_date.sqlite3"%(path_log)
 vip_email_file = "%s/config/vip_email.txt"%(basedir)
 
-def PrintHelp(fpout=sys.stdout):#{{{
-    print(usage_short, file=fpout)
-    print(usage_ext, file=fpout)
-    print(usage_exp, file=fpout)#}}}
 
-def main(g_params):#{{{
-    submitjoblogfile = "%s/submitted_seq.log"%(path_log)
+def main(g_params):# {{{
     runjoblogfile = "%s/runjob_log.log"%(path_log)
-    finishedjoblogfile = "%s/finished_job.log"%(path_log)
 
     if not os.path.exists(path_cache):
         os.mkdir(path_cache)
 
     loop = 0
     while 1:
-        if os.path.exists("%s/CACHE_CLEANING_IN_PROGRESS"%(path_result)):#pause when cache cleaning is in progress
+        if os.path.exists(f"{path_result}/CACHE_CLEANING_IN_PROGRESS"):
+            # pause when cache cleaning is in progress
             continue
         # load the config file if exists
-        configfile = "%s/config/config.json"%(basedir)
+        configfile = f"{basedir}/config/config.json"
         config = {}
         if os.path.exists(configfile):
             text = myfunc.ReadFile(configfile)
@@ -122,13 +88,12 @@ def main(g_params):#{{{
 
         avail_computenode = webcom.ReadComputeNode(computenodefile) # return value is a dict
         g_params['vip_user_list'] = myfunc.ReadIDList2(vip_email_file,  col=0)
-        num_avail_node = len(avail_computenode)
 
-        webcom.loginfo("loop %d"%(loop), gen_logfile)
+        webcom.loginfo(f"loop {loop}", gen_logfile)
 
         isOldRstdirDeleted = False
         if loop % g_params['STATUS_UPDATE_FREQUENCY'][0] == g_params['STATUS_UPDATE_FREQUENCY'][1]:
-            qdcom.RunStatistics_basic(webserver_root, gen_logfile, gen_errfile)
+            qdcom.RunStatistics(g_params)
             isOldRstdirDeleted = webcom.DeleteOldResult(path_result, path_log,
                     gen_logfile, MAX_KEEP_DAYS=g_params['MAX_KEEP_DAYS'])
             webcom.CleanServerFile(path_static, gen_logfile, gen_errfile)
@@ -210,9 +175,10 @@ def main(g_params):#{{{
         loop += 1
 
     return 0
-#}}}
+# }}}
 
-def InitGlobalParameter():#{{{
+
+def InitGlobalParameter():  # {{{
     g_params = {}
     g_params['isQuiet'] = True
     g_params['blackiplist'] = []
@@ -223,6 +189,7 @@ def InitGlobalParameter():#{{{
     g_params['SLEEP_INTERVAL'] = 5    # sleep interval in seconds
     g_params['MAX_SUBMIT_JOB_PER_NODE'] = 200
     g_params['MAX_KEEP_DAYS'] = 60
+    g_params['MAX_KEEP_DAYS_CACHE'] = 480
     g_params['MAX_RESUBMIT'] = 2
     g_params['MAX_SUBMIT_TRY'] = 3
     g_params['MAX_TIME_IN_REMOTE_QUEUE'] = 3600*24 # one day in seconds
@@ -242,8 +209,10 @@ def InitGlobalParameter():#{{{
     g_params['contact_email'] = contact_email
     g_params['webserver_root'] = webserver_root
     return g_params
-#}}}
-if __name__ == '__main__' :
+# }}}
+
+
+if __name__ == '__main__':
     g_params = InitGlobalParameter()
     date_str = time.strftime(g_params['FORMAT_DATETIME'])
     print("\n#%s#\n[Date: %s] qd_fe.py restarted"%('='*80,date_str))
